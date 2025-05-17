@@ -1,0 +1,196 @@
+#############################################################
+#########               Material-Web                #########
+#############################################################
+https://github.com/barryvdh/laravel-dompdf?tab=readme-ov-file
+https://jwt-auth.readthedocs.io/en/develop/laravel-installation
+https://docs.laravel-excel.com/3.1/getting-started/installation.html
+    * Informe tecnico
+    * Manual de usuario
+    * Manual de sistema
+    * php artisan make:export UsersExport --model=User
+    * php artisan make:import UsersImport --model=User
+#############################################################
+#########                  Archivos                 #########
+#############################################################
+//recursos
+curl -X POST "http://localhost:8000/api/importar/{id?}/{docs?}" -H "Accept: application/json" -H "Content-Type: multipart/form-data" -H "Authorization: Bearer {token}" -F 'data=@/home/{usuario}/Descargas/Usuarios.xlsx'|jq
+curl -X POST "http://localhost:8000/api/importar/{id?}/{docs?}" -H "Accept: application/json" -H "Content-Type: multipart/form-data" -H "Authorization: Bearer {token}" -F 'data[]=@/home/{usuario}/Descargas/Usuarios.xlsx'|jq
+curl -X GET "http://localhost:8000/api/exportar/{id?}" -H "Accept: application/json" -H "Content-Type: multipart/form-data" -H "Authorization: Bearer {token}" -o '/home/{usuario}/Descargas/Usuarios.xlsx'|jq
+curl -X GET "http://localhost:8000/api/pdf/{id?}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" --output '/home/{usuario}/Descargas/Usuarios.pdf'|jq
+curl -X GET "http://localhost:8000/api/organigrama" -H "Accept: application/json" -H "Content-Type: multipart/form-data" -H "Authorization: Bearer {token}"|jq
+
+#############################################################
+#########               Inicio Sesión               #########
+#############################################################
+//authenticacion
+curl -X POST "http://localhost:8000/api/ingresar" -H "Accept: application/json" -H "Content-Type: application/json" -d '{"usuario":"admin","password":"5555"}'|jq
+curl -X GET "http://localhost:8000/api/perfil" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/salir" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PATCH "http://localhost:8000/api/refrescar" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PATCH "http://localhost:8000/api/perfil/contraseña" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"password_old":"5555","password":"1234"}'|jq
+
+curl -X POST "http://localhost:8000/api/correo/verificacion" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"usuario":"admin","cedula":"12345678"}'|jq
+curl -X GET "http://localhost:8000/api/correo/verificar/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+curl -X PATCH "http://localhost:8000/api/cedulausuarios/{id?}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+#############################################################
+#########               Administrativo              #########
+#############################################################
+//roles
+curl -X GET "http://localhost:8000/api/rol" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/rol" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"string","descripcion":"text"}'|jq
+curl -X GET "http://localhost:8000/api/rol/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/rol/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"string1","descripcion":"text222"}'|jq
+curl -X PATCH "http://localhost:8000/api/rol/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"string1","descripcion":"idtext222"}'|jq
+curl -X DELETE "http://localhost:8000/api/rol/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//permisos
+curl -X GET "http://localhost:8000/api/permiso" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/permiso" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"modulo_id":"3","listar":1,"crear":1,"editar":1,"leer":1,"eliminar":1,"exportar":1,"importar":1,"descripcion":"trabajo en equipo","rol_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/permiso/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/permiso/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"modelo":"string","listar":1,"crear":0,"editar":1,"leer":1,"eliminar":1,"exportar":0,"importar":0,"descripcion":"trabajo en GRUPO 222"}'|jq
+curl -X PATCH "http://localhost:8000/api/permiso/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"modelo":"string","listar":1,"crear":0,"editar":1,"leer":1,"eliminar":1,"exportar":0,"importar":0,"descripcion":"trabajo en GRUPO 222"}'|jq
+curl -X DELETE "http://localhost:8000/api/permiso/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//estatus
+curl -X GET "http://localhost:8000/api/estatus" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/estatus" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"activo","descripcion":"trabajo en equipo"}'|jq
+curl -X GET "http://localhost:8000/api/estatus/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/estatus/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"activo","descripcion":"trabajo en equipo"}'|jq
+curl -X PATCH "http://localhost:8000/api/estatus/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"activo","descripcion":"trabajo en equipo"}'|jq
+curl -X DELETE "http://localhost:8000/api/estatus/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//cargos
+curl -X GET "http://localhost:8000/api/cargos" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/cargos" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"coordinador","descripcion":"trabajo en coordinador","nivel":"1","cargo_id":"1","departamento_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/cargos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/cargos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"gerente","descripcion":"trabajo en gerente","nivel":"1","cargo_id":"1","departamento_id":"1"}'|jq
+curl -X PATCH "http://localhost:8000/api/cargos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"gerente","descripcion":"trabajo en gerente","nivel":"1","cargo_id":"1","departamento_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/cargos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//usuarios
+curl -X GET "http://localhost:8000/api/usuarios" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/usuarios" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"diossmer","apellido":"villamizar","cedula":"21310567","usuario":"diossmer","correo":"diossmer@gmail.com","password":"12345678","estatus_id":"1","rol_id":"1","cargo_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/usuarios/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/usuarios/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"eduardo","apellido":"marquez","cedula":"21310567","usuario":"diossmer","correo":"diossmer2@gmail.com","password":"12345678","estatus_id":"1","rol_id":"1","cargo_id":"1"}'|jq
+curl -X PATCH "http://localhost:8000/api/usuarios/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"eduardo","apellido":"marquez","cedula":"21310567","usuario":"diossmer","correo":"diossmer2@gmail.com","password":"5555","estatus_id":"1","rol_id":"1","cargo_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/usuarios/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//departamento
+curl -X GET "http://localhost:8000/api/departamento" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/departamento" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"RRHH","descripcion":"trabajo en RRHH"}'|jq
+curl -X GET "http://localhost:8000/api/departamento/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/departamento/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"RRHH","descripcion":"trabajo en RRHH"}'|jq
+curl -X PATCH "http://localhost:8000/api/departamento/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"presidente","descripcion":"trabajo en presidente"}'|jq
+curl -X DELETE "http://localhost:8000/api/departamento/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//gestion-usuario
+curl -X GET "http://localhost:8000/api/gestion-usuario" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/gestion-usuario" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"desde":"2025/05/2","hasta":"2025/06/2","reintegro":"2025/02/12","usuario_id":"1","estatus_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/gestion-usuario/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/gestion-usuario/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"desde":"2025/03/09","hasta":"2025/05/12","reintegro":"2025/02/12","usuario_id":"1","estatus_id":"1"}'|jq
+curl -X PATCH "http://localhost:8000/api/gestion-usuario/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"desde":"12/05/2025","hasta":"12/06/2025","usuario_id":"1","estatus_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/gestion-usuario/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//asistencias
+curl -X GET "http://localhost:8000/api/asistencias" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/asistencias" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"fecha":"2025/01/2","hora_entrada":"19:22:23","hora_salida":"12:28:13","descripcion":"permiso hasta el medio día","usuario_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/asistencias/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/asistencias/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"fecha":"2025/03/2","hora_entrada":"20:22:23","hora_salida":"20:28:13","descripcion":"permiso hasta hoy","usuario_id":"1"}'|jq
+curl -X PATCH "http://localhost:8000/api/asistencias/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"desde":"12/05/2025","hasta":"12/06/2025","usuario_id":"1","estatus_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/asistencias/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//modulo
+curl -X GET "http://localhost:8000/api/modulo" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/modulo" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"activo","descripcion":"trabajo en equipo"}'|jq
+curl -X GET "http://localhost:8000/api/modulo/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/modulo/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"activo","descripcion":"trabajo en equipo"}'|jq
+curl -X PATCH "http://localhost:8000/api/modulo/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"activo","descripcion":"trabajo en equipo"}'|jq
+curl -X DELETE "http://localhost:8000/api/modulo/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+#############################################################
+#########               Inventario                  #########
+#############################################################
+//productos
+curl -X GET "http://localhost:8000/api/productos" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/productos" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"resma de papel","usuario_id":"1","estatus_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/productos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/productos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"resmas de higiene","usuario_id":"1","estatus_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/productos/{id}" -H "Accept: application/json" -H "Content-Type: application/json"  -H "Authorization: Bearer {token}"|jq
+
+//ubicacion
+curl -X GET "http://localhost:8000/api/ubicacion" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/ubicacion" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"origen":"caracas","destino":"caracas","producto_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/ubicacion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/ubicacion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"origen":"merida","destino":"cdds","producto_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/ubicacion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//valoracion
+curl -X GET "http://localhost:8000/api/valoracion" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/valoracion" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"fecha": "2025/01/2","puntuacion": 5,"comentario":"Excelente producto","usuario_id":"1","producto_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/valoracion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/valoracion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"fecha": "2025/03/2","puntuacion": 3,"comentario":"Regular producto","usuario_id":"1","producto_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/valoracion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//proveedor
+curl -X GET "http://localhost:8000/api/proveedor" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/proveedor" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre": "felipe","notas": "Se daño el equipo","ingreso":"1","egreso":"0","estatus_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/proveedor/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/proveedor/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre": "Pepito","notas": "Se daño el equipo","precio":"16.43","cantidad":"123","estatus_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/proveedor/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//precio
+curl -X GET "http://localhost:8000/api/precio" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/precio" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"tasa": "55.55","precio_compra": "255.32","precio_venta":"1500.2","unidad_moneda":"USD","producto_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/precio/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/precio/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"tasa": "56.55","precio_compra": "256.32","precio_venta":"100.22","unidad_moneda":"USD","producto_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/precio/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//descripcion
+curl -X GET "http://localhost:8000/api/descripcion" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/descripcion" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"categoria": "accion","talla": "22 L","modelo":"pin 2","color":"AZUL","serial":"1BSN 24id43j","sku":"LIT-2023-002","tamaño":"25 cm","textura":"gruesa","nucleo":"caracas","observacion":"fuerte","producto_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/descripcion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/descripcion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"categoria": "accion","talla": "22 L","modelo":"pin 2","color":"AZUL","serial":"1BSN 2443j","sku":"LIT-2053-052","tamaño":"28cm","textura":"gruesa","nucleo":"guarico","observacion":"fuerte","producto_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/descripcion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//perifericos
+curl -X GET "http://localhost:8000/api/perifericos" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/perifericos" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"almacen secundario","descripcion":"Parte dos"}'|jq
+curl -X GET "http://localhost:8000/api/perifericos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/perifericos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"almacen secund","descripcion":"Parte 2"}'|jq
+curl -X DELETE "http://localhost:8000/api/perifericos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//talleres
+curl -X GET "http://localhost:8000/api/talleres" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/talleres" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"taller primero","descripcion":"Parte dos"}'|jq
+curl -X GET "http://localhost:8000/api/talleres/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/talleres/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"taller segundo","descripcion":"Parte dos"}'|jq
+curl -X DELETE "http://localhost:8000/api/talleres/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//depositos
+curl -X GET "http://localhost:8000/api/depositos" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/depositos" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"almacen secundario","descripcion":"Parte dos","cantidad":"2","producto_id":"1","almacen_id":"1","taller_id":"1","deposito_id":"1"}'|jq
+curl -X GET "http://localhost:8000/api/depositos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/depositos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"almacen secund","descripcion":"Parte 2","cantidad":"22","producto_id":"1","almacen_id":"1","taller_id":"1","deposito_id":"1"}'|jq
+curl -X DELETE "http://localhost:8000/api/depositos/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//autorizado
+curl -X GET "http://localhost:8000/api/autorizado" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/autorizado" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"fecha":"2025/01/2","producto_id":"1","usuario_id":1,"estatus_id":1,"cargo_id":1,}'|jq
+curl -X GET "http://localhost:8000/api/autorizado/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/autorizado/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"fecha":"2025/02/2","producto_id":"1","usuario_id":1,"estatus_id":1,"cargo_id":1,}'|jq
+curl -X DELETE "http://localhost:8000/api/autorizado/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//categoria
+curl -X GET "http://localhost:8000/api/categoria" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/categoria" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"almacen","tipo":"Parte dos"}'|jq
+curl -X GET "http://localhost:8000/api/categoria/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/categoria/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"almacenes","tipo":"Parte 2"}'|jq
+curl -X DELETE "http://localhost:8000/api/categoria/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+
+//asignacion
+curl -X GET "http://localhost:8000/api/asignacion" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X POST "http://localhost:8000/api/asignacion" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"almacen","tipo":"Parte dos"}'|jq
+curl -X GET "http://localhost:8000/api/asignacion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq
+curl -X PUT "http://localhost:8000/api/asignacion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}" -d '{"nombre":"almacenes","tipo":"Parte 2"}'|jq
+curl -X DELETE "http://localhost:8000/api/asignacion/{id}" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer {token}"|jq

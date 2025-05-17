@@ -1,0 +1,13 @@
+0000000000000000000000000000000000000000 cfd14f37f99e351b2e6050f8166058112ca52e39 diossmer <diossmer@diossmer.diossmer> 1743107039 -0400	clone: from https://gitlab.com/Diossmer/vpti_movilnet.git
+cfd14f37f99e351b2e6050f8166058112ca52e39 3b48cb4b650eaa67eb2f77151c1ca36ffd18f547 diossmer <diossmer@diossmer.diossmer> 1743107873 -0400	commit: Modificacion falta por hacer
+3b48cb4b650eaa67eb2f77151c1ca36ffd18f547 f7e2afc1ac9964bd4097906f2370e7546e5816da diossmer <diossmer@diossmer.diossmer> 1743129961 -0400	commit: BASE DATO LISTO
+f7e2afc1ac9964bd4097906f2370e7546e5816da 8bc2f90825c5e4443bc605c27cf94dede95b107a diossmer <diossmer@diossmer.diossmer> 1743130589 -0400	commit: BASE DATO LISTO
+8bc2f90825c5e4443bc605c27cf94dede95b107a 1783886ed07dfbe781414bcce6390e37325c1caf diossmer <diossmer@diossmer.diossmer> 1743133328 -0400	commit: Estructura de archivos
+1783886ed07dfbe781414bcce6390e37325c1caf 9e64e5d8a12d9dc4379b8baa15ee5f0fb9f37578 diossmer <diossmer@diossmer.diossmer> 1743171828 -0400	commit: Inventario falta jerarquia y condicion de estatus
+9e64e5d8a12d9dc4379b8baa15ee5f0fb9f37578 4f7d23c70c822782704a8690f3505e4e6df3ec7e diossmer <diossmer@diossmer.diossmer> 1743380137 -0400	commit: aun falta modificacion
+4f7d23c70c822782704a8690f3505e4e6df3ec7e 9ab2f78ce2da4eaabb9e31604584e4a62c386d76 diossmer <diossmer@diossmer.diossmer> 1743479067 -0400	commit: DATADescripcion
+9ab2f78ce2da4eaabb9e31604584e4a62c386d76 ab8f9799313c5f45f6fc8a87cc81c846d8322bae diossmer <diossmer@diossmer.diossmer> 1743660100 -0400	commit: modelo de inventario falta jerarquia
+ab8f9799313c5f45f6fc8a87cc81c846d8322bae 87702169267fef740c39156b19e40d95d7eaf517 diossmer <diossmer@diossmer.diossmer> 1743660367 -0400	commit: detalles configuracion
+87702169267fef740c39156b19e40d95d7eaf517 9caaee4918d22fb7204ec992e23a21dace3cf37c diossmer <diossmer@diossmer.diossmer> 1743957307 -0400	commit: Rol y estatus
+9caaee4918d22fb7204ec992e23a21dace3cf37c da3c21b20c5a0df06f9e5237a066c92eda18634a diossmer <diossmer@diossmer.diossmer> 1743957552 -0400	commit: Rol y estatus
+da3c21b20c5a0df06f9e5237a066c92eda18634a d5d3e338ab55b4d32a4ca439437afd5b7c038286 diossmer <diossmer@diossmer.diossmer> 1743957771 -0400	commit: Rol y estatus
