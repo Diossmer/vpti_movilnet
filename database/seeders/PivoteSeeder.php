@@ -29,5 +29,15 @@ class PivoteSeeder extends Seeder
             'periferico_id'=>1,
             'producto_id'=>1,
         ]);
+
+        EvaluacionProductos::create([
+            'evaluacion_id'=>1,
+            'producto_id'=>1,
+        ]);
+
+        UbicacionProductos::create([
+            'ubicacion_id'=>1,
+            'producto_id'=>1,
+        ]);
     }
 }

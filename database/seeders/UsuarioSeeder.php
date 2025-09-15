@@ -15,7 +15,7 @@ class UsuarioSeeder extends Seeder
     public function run(): void
     {
         Estatus::create([
-            'nombre' => 'Principal',
+            'nombre' => 'Activo',
             'descripcion' => 'Activo en el sistema',
         ]);
         Estatus::create([
@@ -39,7 +39,7 @@ class UsuarioSeeder extends Seeder
             'descripcion' => 'Activo en el sistema',
         ]);
         Estatus::create([
-            'nombre' => 'Activo',
+            'nombre' => 'Principal',
             'descripcion' => 'Presente en la aplicación',
         ]);
         Estatus::create([
@@ -156,7 +156,7 @@ class UsuarioSeeder extends Seeder
             'telefono_celular'=>'04160000000',
             'telefono_alternativo'=>'04240000000',
             'password' => Hash::make('5555'),
-            'estatus_id'=>Estatus::where('nombre','=','Principal')->first()?->id,
+            'estatus_id'=>Estatus::where('nombre','=','Activo')->first()?->id,
             'rol_id'=>Roles::first()->id,
         ]);
     }

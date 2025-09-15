@@ -29,19 +29,29 @@ class Productos extends Model
         return $this->hasMany(Descripcion::class,'producto_id');
     }
 
-    public function evaluaciones(): HasMany
+    public function inventarios(): BelongsToMany
     {
-        return $this->hasMany(Evaluaciones::class,'producto_id');
+        return $this->belongsToMany(\App\Models\Inventario\Inventarios::class,'inventarios_productos','producto_id','inventario_id')->withTimestamps();
     }
-
+    
     public function perifericos(): BelongsToMany
     {
         return $this->belongsToMany(\App\Models\Inventario\Perifericos::class,'perifericos_productos','producto_id','periferico_id')->withTimestamps();
     }
-
-    public function inventarios(): BelongsToMany
+    
+    public function evaluaciones(): BelongsToMany
     {
-        return $this->belongsToMany(\App\Models\Inventario\Inventarios::class,'inventarios_productos','producto_id','inventario_id')->withTimestamps();
+        return $this->belongsToMany(Evaluaciones::class,'evaluacion_productos','producto_id','evaluacion_id')->withTimestamps();
+    }
+
+    public function asignaciones(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Inventario\Asignacion::class,'asignados_productos','producto_id','asignar_id')->withTimestamps();
+    }
+
+    public function ubicaciones(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Inventario\Ubicacion::class,'ubicacion_productos','producto_id','ubicacion_id')->withTimestamps();
     }
 
     //administrativo

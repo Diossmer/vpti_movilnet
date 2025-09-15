@@ -28,6 +28,13 @@ return new class extends Migration
             $table->foreignId('producto_id')->nullable()->constrained('productos')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
+
+        Schema::create('ubicacion_productos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('evaluacion_id')->nullable()->constrained('evaluaciones')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('producto_id')->nullable()->constrained('productos')->onUpdate('cascade')->onDelete('cascade');
+            $table->timestamps();
+        });
     }
 
     public function down(): void
@@ -36,6 +43,8 @@ return new class extends Migration
         Schema::dropIfExists('inventarios_productos');
         Schema::dropIfExists('perifericos_productos');
         Schema::dropIfExists('asignados_productos');
+        Schema::dropIfExists('evaluacion_productos');
+        Schema::dropIfExists('ubicacion_productos');
         Schema::enableForeignKeyConstraints();
     }
 };

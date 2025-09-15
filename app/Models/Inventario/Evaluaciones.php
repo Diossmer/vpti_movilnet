@@ -29,9 +29,9 @@ class Evaluaciones extends Model
         'updated_at'
     ];
 
-    public function producto(): BelongsTo
+    public function productos(): BelongsToMany
     {
-        return $this->belongsTo(\App\Models\Inventario\Productos::class,'producto_id');
+        return $this->belongsToMany(Productos::class,'evaluacion_productos','evaluacion_id','producto_id')->withTimestamps();
     }
 
     public function estatus(): BelongsTo

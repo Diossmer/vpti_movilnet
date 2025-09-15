@@ -25,6 +25,11 @@ class Ubicacion extends Model
         'updated_at'
     ];
 
+    public function productos(): BelongsToMany
+    {
+        return $this->belongsToMany(Productos::class,'ubicacion_productos','ubicacion_id','producto_id')->withTimestamps();
+    }
+
     public function descripcion(): BelongsTo
     {
         return $this->belongsTo(Descripcion::class,'descripcion_id');
