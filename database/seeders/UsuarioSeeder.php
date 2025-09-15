@@ -15,7 +15,7 @@ class UsuarioSeeder extends Seeder
     public function run(): void
     {
         Estatus::create([
-            'nombre' => 'Activo',
+            'nombre' => 'Principal',
             'descripcion' => 'Activo en el sistema',
         ]);
         Estatus::create([
@@ -39,7 +39,7 @@ class UsuarioSeeder extends Seeder
             'descripcion' => 'Activo en el sistema',
         ]);
         Estatus::create([
-            'nombre' => 'Principal',
+            'nombre' => 'Activo',
             'descripcion' => 'Presente en la aplicación',
         ]);
         Estatus::create([
