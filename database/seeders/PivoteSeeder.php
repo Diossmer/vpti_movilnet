@@ -7,6 +7,8 @@ use Illuminate\Database\Seeder;
 use App\Models\Inventario\Inventarios_Productos;
 use App\Models\Inventario\Asignar_productos;
 use App\Models\Inventario\Perifericos_Productos;
+use App\Models\Inventario\EvaluacionProductos;
+use App\Models\Inventario\UbicacionProductos;
 
 class PivoteSeeder extends Seeder
 {

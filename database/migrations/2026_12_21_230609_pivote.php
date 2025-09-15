@@ -29,9 +29,16 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('ubicacion_productos', function (Blueprint $table) {
+        Schema::create('evaluacion_productos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('evaluacion_id')->nullable()->constrained('evaluaciones')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('producto_id')->nullable()->constrained('productos')->onUpdate('cascade')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('ubicacion_productos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('ubicacion_id')->nullable()->constrained('evaluaciones')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('producto_id')->nullable()->constrained('productos')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });

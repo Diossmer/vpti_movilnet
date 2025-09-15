@@ -20,7 +20,7 @@ class ProductosController extends Controller
     {
         try {
             if(Auth::check()){
-                $productos = Productos::with('descripciones','evaluaciones','perifericos','inventarios','usuario','estatus')->get();
+                $productos = Productos::with('descripciones','inventarios','perifericos','evaluaciones','asignaciones','ubicaciones', 'usuario', 'estatus')->get();
                 if($productos->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un productos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un productos.", 404);
@@ -57,7 +57,7 @@ class ProductosController extends Controller
                     'nombre'=>$request->nombre,
                     'usuario_id'=>(Auth::id()===1)?$request->usuario_id:Auth::id(),
                     'estatus_id'=>$request->estatus_id,
-                ])->load(['descripciones','evaluaciones','perifericos','inventarios','usuario','estatus']);
+                ])->load(['descripciones','inventarios','perifericos','evaluaciones','asignaciones','ubicaciones', 'usuario', 'estatus']);
                 if(is_null($productos)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un productos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado guardar un productos.", 404);
@@ -82,7 +82,7 @@ class ProductosController extends Controller
     {
         try {
             if(Auth::check()){
-                $productos = Productos::with('descripciones','evaluaciones','perifericos','inventarios','usuario','estatus')->find($id);
+                $productos = Productos::with('descripciones','inventarios','perifericos','evaluaciones','asignaciones','ubicaciones', 'usuario', 'estatus')->find($id);
                 if(is_null($productos)){
                     Log::channel('sistema')->debug('No se ha logrado mostrar un productos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado mostrar un productos.", 404);
@@ -116,7 +116,7 @@ class ProductosController extends Controller
                     'estatus_id.exists' => 'El estatus seleccionado no es válido.',
                 ]);
 
-                $productos = Productos::with('descripciones','evaluaciones','perifericos','inventarios','usuario','estatus')->find($id);
+                $productos = Productos::with('descripciones','inventarios','perifericos','evaluaciones','asignaciones','ubicaciones', 'usuario', 'estatus')->find($id);
                 if(is_null($productos)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un productos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado actualizar un productos.", 404);
@@ -146,7 +146,7 @@ class ProductosController extends Controller
     {
         try {
             if(Auth::check()){
-                $productos = Productos::with('descripciones','evaluaciones','perifericos','inventarios','usuario','estatus')->find($id);
+                $productos = Productos::with('descripciones','inventarios','perifericos','evaluaciones','asignaciones','ubicaciones', 'usuario', 'estatus')->find($id);
                 if(is_null($productos)){
                     Log::channel('sistema')->debug('No se ha logrado eliminar productos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado eliminar productos.", 404);

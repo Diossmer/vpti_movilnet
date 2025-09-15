@@ -20,7 +20,7 @@ class EvaluacionesController extends Controller
     {
         try {
             if(Auth::check()){
-                $evaluacion = Evaluaciones::with('producto','estatus','descripcion')->get();
+                $evaluacion = Evaluaciones::with('productos','estatus','descripcion')->get();
                 if($evaluacion->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un evaluacion.", 404);
@@ -69,7 +69,7 @@ class EvaluacionesController extends Controller
                     'producto_id'=>$request->producto_id,
                     'estatus_id'=>$request->estatus_id,
                     'descripcion_id'=>$request->descripcion_id,
-                ])->load(['producto','estatus','descripcion']);
+                ])->load(['productos','estatus','descripcion']);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado guardar un evaluacion.", 404);
@@ -94,7 +94,7 @@ class EvaluacionesController extends Controller
     {
         try {
             if(Auth::check()){
-                $evaluacion = Evaluaciones::with('producto','estatus','descripcion')->find($id);
+                $evaluacion = Evaluaciones::with('productos','estatus','descripcion')->find($id);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado mostrar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado mostrar un evaluacion.", 404);
@@ -133,7 +133,7 @@ class EvaluacionesController extends Controller
                     'descripcion_id.exists' => 'La descripción seleccionada no existe'
                 ]);
 
-                $evaluacion = Evaluaciones::with('producto','estatus','descripcion')->find($id);
+                $evaluacion = Evaluaciones::with('productos','estatus','descripcion')->find($id);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado actualizar un evaluacion.", 404);
@@ -170,7 +170,7 @@ class EvaluacionesController extends Controller
     {
         try {
             if(Auth::check()){
-                $evaluacion = Evaluaciones::with('producto','estatus','descripcion')->find($id);
+                $evaluacion = Evaluaciones::with('productos','estatus','descripcion')->find($id);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado eliminar evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado eliminar evaluacion.", 404);
@@ -194,10 +194,10 @@ class EvaluacionesController extends Controller
     public function exportar(string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Evaluaciones::with('producto','estatus','descripcion')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Evaluaciones::with('productos','estatus','descripcion')->where('id','=',$id)->get()->makeHidden(['id']));
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Evaluaciones::with('producto','estatus','descripcion')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Evaluaciones::with('productos','estatus','descripcion')->get()->makeHidden(['id']));
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -252,7 +252,7 @@ class EvaluacionesController extends Controller
 
     public function generatepdf(string $id=null, string $docs=null){
         // Obtén los datos necesarios para generar el PDF
-        $evaluacion = Evaluaciones::with('producto', 'usuario', 'estatus', 'cargo')->where('id','=',$id)?->first()?? null;
+        $evaluacion = Evaluaciones::with('productos', 'usuario', 'estatus', 'cargo')->where('id','=',$id)?->first()?? null;
         $authenticado = Auth::user();
         // Genera el PDF
         $pdf = PDF::loadView('pdf.autorizacion',compact('evaluacion','authenticado'));

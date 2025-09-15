@@ -21,7 +21,7 @@ class UbicacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $ubicacion = Ubicacion::with('descripcion')->get();
+                $ubicacion = Ubicacion::with('productos', 'descripcion')->get();
                 if($ubicacion->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un ubicacion.", 404);
@@ -64,7 +64,7 @@ class UbicacionController extends Controller
                     'estado'=>$request->estado,
                     'capital'=>$request->capital,
                     'descripcion_id'=>$request->descripcion_id,
-                ])->load(['descripcion']);
+                ])->load(['productos', 'descripcion']);
                 if(is_null($ubicacion)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado guardar un ubicacion.", 404);
@@ -89,7 +89,7 @@ class UbicacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $ubicacion = Ubicacion::with('descripcion')->find($id);
+                $ubicacion = Ubicacion::with('productos', 'descripcion')->find($id);
                 if(is_null($ubicacion)){
                     Log::channel('sistema')->debug('No se ha logrado mostrar un ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado mostrar un ubicacion.", 404);
@@ -122,7 +122,7 @@ class UbicacionController extends Controller
                     'region' => 'Región no válida. Opciones: Norte, Sur, Este, Oeste, Centro',
                 ]);
 
-                $ubicacion = Ubicacion::with('descripcion')->find($id);
+                $ubicacion = Ubicacion::with('productos', 'descripcion')->find($id);
                 if(is_null($ubicacion)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado actualizar un ubicacion.", 404);
@@ -156,7 +156,7 @@ class UbicacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $ubicacion = Ubicacion::with('descripcion')->find($id);
+                $ubicacion = Ubicacion::with('productos', 'descripcion')->find($id);
                 if(is_null($ubicacion)){
                     Log::channel('sistema')->debug('No se ha logrado eliminar ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado eliminar ubicacion.", 404);
@@ -180,10 +180,10 @@ class UbicacionController extends Controller
     public function exportar(string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Ubicacion::with('descripcion')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Ubicacion::with('productos', 'descripcion')->where('id','=',$id)->get()->makeHidden(['id']));
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Ubicacion::with('descripcion')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Ubicacion::with('productos', 'descripcion')->get()->makeHidden(['id']));
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
