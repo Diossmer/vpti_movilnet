@@ -43,10 +43,11 @@ class PerifericosController extends Controller
             if(Auth::check()){
                 $request->validate([
                     'cantidad_existente' => 'required|integer|min:0',
-                    'entrada' => 'required|integer|min:0',
-                    'salida' => 'required|integer|min:0',
+                    'entrada' => 'nullable|integer|min:0',
+                    'salida' => 'nullable|integer|min:0',
                     'descripcion' => 'nullable|string',
                     'estatus_id' => 'required|exists:estatus,id',
+                    'producto_id' => 'required|array|exists:productos,id',
                 ], [
                     'cantidad_existente.required' => 'La cantidad existente es obligatoria',
                     'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
@@ -61,6 +62,9 @@ class PerifericosController extends Controller
                     'descripcion.max' => 'La descripción no puede exceder 500 caracteres.',
                     'estatus_id.required' => 'El campo estatus es obligatorio.',
                     'estatus_id.exists' => 'El estatus seleccionado no es válido.',
+                    'producto_id.exists' => 'El producto especificado no existe',
+                    'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                 ]);
 
                 $perifericos = Perifericos::create([
@@ -70,6 +74,9 @@ class PerifericosController extends Controller
                     'descripcion'=>$request->descripcion,
                     'estatus_id'=>$request->estatus_id,
                 ])->load(['estatus','productos']);
+                if($request->filled('producto_id')){
+                    $perifericos->productos()->sync($request->producto_id);
+                }
                 if(is_null($perifericos)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado guardar un perifericos.", 404);
@@ -121,6 +128,7 @@ class PerifericosController extends Controller
                     'salida' => 'required|integer|min:0',
                     'descripcion' => 'nullable|string',
                     'estatus_id' => 'required|exists:estatus,id',
+                    'producto_id' => 'required|array|exists:productos,id',
                 ], [
                     'cantidad_existente.required' => 'La cantidad existente es obligatoria',
                     'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
@@ -135,6 +143,9 @@ class PerifericosController extends Controller
                     'descripcion.max' => 'La descripción no puede exceder 500 caracteres.',
                     'estatus_id.required' => 'El campo estatus es obligatorio.',
                     'estatus_id.exists' => 'El estatus seleccionado no es válido.',
+                    'producto_id.exists' => 'El producto especificado no existe',
+                    'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                 ]);
 
                 $perifericos = Perifericos::with('estatus','productos')->find($id);
@@ -150,6 +161,9 @@ class PerifericosController extends Controller
                     'descripcion'=>$request->descripcion,
                     'estatus_id'=>$request->estatus_id,
                 ]);
+                if($request->filled('producto_id')){
+                    $perifericos->productos()->sync($request->producto_id);
+                }
                 Log::channel('usuario')->info('Se actualizó correctamente.'.$perifericos,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);
             }else{

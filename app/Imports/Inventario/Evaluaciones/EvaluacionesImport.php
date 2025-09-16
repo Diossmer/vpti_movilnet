@@ -34,14 +34,13 @@ class EvaluacionesImport implements ToCollection, WithHeadingRow, WithBatchInser
     {
         foreach ($rows as $row) {
             try {
-                if (empty($row["producto"]||$row["descripcion"]||$row["estatus"])) {
+                if (empty($row["productos"]||$row["descripcion"]||$row["estatus"])) {
                     $this->registrosPendientes++;
-                    throw new \Exception("Fila inválida: producto está vacío.");
+                    throw new \Exception("Fila inválida: productos está vacío.");
                 }
-                \App\Models\Inventario\Evaluaciones::updateOrCreate(
+                $evaluacion = \App\Models\Inventario\Evaluaciones::updateOrCreate(
                     [
                         // Clave única compuesta (debe coincidir con uniqueBy)
-                        'producto_id' => \App\Models\Inventario\Productos::where('nombre','=',Str::lower(trim($row['producto'])))->first()?->id ?? null,
                         'descripcion_id'=>\App\Models\Inventario\Descripcion::where('modelo','=',Str::lower(trim($row['descripcion'])))->first()?->id ?? null,
                         'estatus_id'=>\App\Models\Estatus::where('nombre','=',Str::lower(trim($row['estatus'])))->first()?->id ?? null,
                     ],
@@ -55,10 +54,12 @@ class EvaluacionesImport implements ToCollection, WithHeadingRow, WithBatchInser
                         'notas'=>Str::lower(trim($row['notas']))?? null,
                     ]
                 );
+                $evaluacionID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $evaluacion->productos()->sync($evaluacionID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
-                    Log::warning("Registro duplicado: {$row['producto']} {$row['descripcion']} {$row['estatus']}");
+                    Log::warning("Registro duplicado: {$row['productos']} {$row['descripcion']} {$row['estatus']}");
                     $this->registrosFallidos++;
                     continue;
                 }

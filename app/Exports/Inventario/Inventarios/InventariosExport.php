@@ -30,14 +30,14 @@ class InventariosExport implements FromCollection, ShouldAutoSize, WithHeadings,
     public function map($request): array
     {
         return [
-            'cantidad_existente'=>$request->cantidad_existente??"Sin data",
-            'entrada'=>$request->entrada??"Sin data",
-            'salida'=>$request->salida??"Sin data",
-            'descripcion'=>$request->descripcion??"Sin data",
-            'estatus_id'=>$request->estatus->nombre??"Sin data",
+            'cantidad_existente'=>$request->cantidad_existente?? 0,
+            'entrada'=>$request->entrada?? 0,
+            'salida'=>$request->salida?? 0,
+            'descripcion'=>$request->descripcion?? "Sin data",
+            'estatus_id'=>$request->estatus->nombre?? null,
             'productos'=>$request->productos->map(function($producto){
                 return $producto?->nombre;
-            })->implode(',') ?? "Sin data",
+            })->implode(',') ?? null,
         ];
     }
 
@@ -53,6 +53,6 @@ class InventariosExport implements FromCollection, ShouldAutoSize, WithHeadings,
 
     public function title(): string
     {
-        return "Inventarios";
+        return "Sin-Periféricos";
     }
 }

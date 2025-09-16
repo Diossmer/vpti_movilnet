@@ -37,7 +37,7 @@ class UbicacionesImport implements ToCollection, WithHeadingRow, WithBatchInsert
                     $this->registrosPendientes++;
                     throw new \Exception("Fila inválida: producto está vacío.");
                 }
-                \App\Models\Inventario\Ubicacion::updateOrCreate(
+                $ubicacion = \App\Models\Inventario\Ubicacion::updateOrCreate(
                     [
                         'descripcion_id' => \App\Models\Inventario\Descripcion::where('modelo','=',Str::lower(trim($row['descripcion'])))->first()?->id 
                     ],
@@ -50,6 +50,8 @@ class UbicacionesImport implements ToCollection, WithHeadingRow, WithBatchInsert
                         'capital'=>Str::lower(trim($row['capital'])) ?? null,
                     ]
                 );
+                $ubicacionID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $ubicacion->productos()->sync($ubicacionID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {

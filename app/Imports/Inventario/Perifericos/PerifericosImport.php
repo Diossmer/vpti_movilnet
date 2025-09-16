@@ -33,13 +33,13 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
     {
         foreach ($rows as $row) {
             try {
-                if (empty($row["cantidad_existente"])) {
+                if (empty($row["cantidad_existente"]) || empty($row['productos'])) {
                     $this->registrosPendientes++;
-                    throw new \Exception("Fila inválida: cargos está vacío.");
+                    throw new \Exception("Fila inválida: cantidad_existente o productos están vacíos.");
                 }
                 $perifericos = \App\Models\Inventario\Perifericos::updateOrCreate(
                     [
-                        'cantidad_existente' => $row["cantidad_existente"],
+                        'cantidad_existente' => $row["cantidad_existente"]?? 0,
                         'entrada' => $row["entrada"] ?? 0,
                         'salida' => $row["salida"] ?? 0,
                     ],

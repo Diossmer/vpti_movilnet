@@ -34,9 +34,11 @@ class EvaluacionesExport implements FromCollection, ShouldAutoSize, WithHeadings
             'escala'=>$request->escala,
             'compatibilidad'=>$request->compatibilidad,
             'reemplazo'=>$request->reemplazo,
-            'mantenimineto'=>$request->mantenimineto,
+            'mantenimiento'=>$request->mantenimiento,
             'notas'=>$request->notas,
-            'producto_id'=>$request->producto->nombre??"Sin data",
+            'producto_id'=>$request->productos->map(function($producto){
+                return $producto?->nombre;
+            })->implode(',') ?? "Sin data",
             'estatus_id'=>$request->estatus->nombre??"Sin data",
             'descripcion_id'=>$request->descripcion->modelo,
         ];
@@ -54,6 +56,6 @@ class EvaluacionesExport implements FromCollection, ShouldAutoSize, WithHeadings
 
     public function title(): string
     {
-        return "Autorizados";
+        return "Evaluaciones";
     }
 }
