@@ -42,19 +42,21 @@ class EvaluacionesController extends Controller
         try {
             if(Auth::check()){
                 $validated = $request->validate([
-                    'estado_fisico' => 'required|string|max:255',
-                    'escala' => 'required|string|max:255',
-                    'compatibilidad' => 'required|string',
-                    'reemplazo' => 'required|string',
-                    'mantenimineto' => 'required|string|max:500',
+                    //'estado_fisico' => 'required|string|max:255',
+                    'escala' => 'nullable|string|max:255',
+                    'compatibilidad' => 'nullable|string',
+                    'reemplazo' => 'nullable|string',
+                    'mantenimiento' => 'nullable|string|max:500',
                     'notas' => 'nullable|string|max:1000',
-                    'producto_id' => 'required|integer|exists:productos,id',
+                    'producto_id' => 'required|array|exists:productos,id',
                     'estatus_id' => 'required|integer|exists:estatus,id',
                     'descripcion_id' => 'required|integer|exists:descripcion,id',
                 ],
                 [
-                    'mantenimineto.required' => 'El campo mantenimiento es obligatorio',
-                    'producto_id.exists' => 'El producto seleccionado no existe',
+                    'mantenimiento.required' => 'El campo mantenimiento es obligatorio', // Sugerir corrección de typo en mensaje
+                    'producto_id.exists' => 'El producto especificado no existe',
+                    'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                     'estatus_id.exists' => 'El estatus seleccionado no es válido',
                     'descripcion_id.exists' => 'La descripción seleccionada no existe'
                 ]);
@@ -64,12 +66,14 @@ class EvaluacionesController extends Controller
                     'escala'=>$request->escala,
                     'compatibilidad'=>$request->compatibilidad,
                     'reemplazo'=>$request->reemplazo,
-                    'mantenimineto'=>$request->mantenimineto,
+                    'mantenimiento'=>$request->mantenimiento,
                     'notas'=>$request->notas,
-                    'producto_id'=>$request->producto_id,
                     'estatus_id'=>$request->estatus_id,
                     'descripcion_id'=>$request->descripcion_id,
                 ])->load(['productos','estatus','descripcion']);
+                if($request->filled('producto_id')){
+                    $evaluacion->productos()->sync($request->producto_id);
+                }
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado guardar un evaluacion.", 404);
@@ -116,19 +120,21 @@ class EvaluacionesController extends Controller
         try {
             if(Auth::check()){
                 $validated = $request->validate([
-                    'estado_fisico' => 'required|string|max:255',
-                    'escala' => 'required|string|max:255',
-                    'compatibilidad' => 'required|string',
-                    'reemplazo' => 'required|string',
-                    'mantenimineto' => 'required|string|max:500',
+                    //'estado_fisico' => 'required|string|max:255',
+                    'escala' => 'nullable|string|max:255',
+                    'compatibilidad' => 'nullable|string',
+                    'reemplazo' => 'nullable|string',
+                    'mantenimiento' => 'nullable|string|max:500',
                     'notas' => 'nullable|string|max:1000',
-                    'producto_id' => 'required|integer|exists:productos,id',
+                    'producto_id' => 'required|array|exists:productos,id',
                     'estatus_id' => 'required|integer|exists:estatus,id',
                     'descripcion_id' => 'required|integer|exists:descripcion,id',
                 ],
                 [
-                    'mantenimineto.required' => 'El campo mantenimiento es obligatorio', // Sugerir corrección de typo en mensaje
-                    'producto_id.exists' => 'El producto seleccionado no existe',
+                    'mantenimiento.required' => 'El campo mantenimiento es obligatorio', // Sugerir corrección de typo en mensaje
+                    'producto_id.exists' => 'El producto especificado no existe',
+                    'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                     'estatus_id.exists' => 'El estatus seleccionado no es válido',
                     'descripcion_id.exists' => 'La descripción seleccionada no existe'
                 ]);
@@ -141,16 +147,18 @@ class EvaluacionesController extends Controller
                 }
 
                 $evaluacion->update([
-                    'estado_fisico'=>$request->estado_fisico,
+                    //'estado_fisico'=>$request->estado_fisico,
                     'escala'=>$request->escala,
                     'compatibilidad'=>$request->compatibilidad,
                     'reemplazo'=>$request->reemplazo,
-                    'mantenimineto'=>$request->mantenimineto,
+                    'mantenimiento'=>$request->mantenimiento,
                     'notas'=>$request->notas,
-                    'producto_id'=>$request->producto_id,
                     'estatus_id'=>$request->estatus_id,
                     'descripcion_id'=>$request->descripcion_id,
                 ]);
+                if($request->filled('producto_id')){
+                    $evaluacion->productos()->sync($request->producto_id);
+                }
                 Log::channel('usuario')->info('Se actualizó correctamente.'.$evaluacion,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);
             }else{

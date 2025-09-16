@@ -56,13 +56,11 @@ class InventarioSeeder extends Seeder
         ]);
 
         Evaluaciones::create([
-            'estado_fisico'=>'N/A',
             'escala'=>'N/A',
             'compatibilidad'=>'N/A',
             'reemplazo'=>'N/A',
-            'mantenimineto'=>'N/A',
+            'mantenimiento'=>'N/A',
             'notas'=>'N/A',
-            'producto_id'=>1,
             'estatus_id'=>1,
             'descripcion_id'=>1,
         ]);

@@ -11,19 +11,16 @@ class Evaluaciones extends Model
     protected $table = 'evaluaciones';
 
     protected $fillable = [
-        'estado_fisico',
         'escala',
         'compatibilidad',
         'reemplazo',
-        'mantenimineto',
+        'mantenimiento',
         'notas',
-        'producto_id',
         'estatus_id',
         'descripcion_id',
     ];
 
     protected $hidden = [
-        'producto_id',
         'estatus_id',
         'descripcion_id',
         'created_at',

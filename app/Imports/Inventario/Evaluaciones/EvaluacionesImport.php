@@ -46,11 +46,11 @@ class EvaluacionesImport implements ToCollection, WithHeadingRow, WithBatchInser
                     ],
                     [
                         // Campos actualizables
-                        'estado_fisico'=>Str::lower(trim($row['estado_fisico']))?? null,
+                        //'estado_fisico'=>Str::lower(trim($row['estado_fisico']))?? null,
                         'escala'=>Str::lower(trim($row['escala']))?? null,
                         'compatibilidad'=>Str::lower(trim($row['compatibilidad']))?? null,
                         'reemplazo'=>Str::lower(trim($row['reemplazo']))?? null,
-                        'mantenimineto'=>Str::lower(trim($row['mantenimineto']))?? null,
+                        'mantenimiento'=>Str::lower(trim($row['mantenimiento']))?? null,
                         'notas'=>Str::lower(trim($row['notas']))?? null,
                     ]
                 );
@@ -84,7 +84,7 @@ class EvaluacionesImport implements ToCollection, WithHeadingRow, WithBatchInser
 
     public function uniqueBy()
     {
-        return ['producto_id', 'descripcion_id','estatus_id','mantenimineto'];
+        return ['producto_id', 'descripcion_id','estatus_id','mantenimiento'];
     }
 
     public function rules(): array

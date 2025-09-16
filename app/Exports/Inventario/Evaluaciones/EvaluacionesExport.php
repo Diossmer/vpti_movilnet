@@ -30,7 +30,6 @@ class EvaluacionesExport implements FromCollection, ShouldAutoSize, WithHeadings
     public function map($request): array
     {
         return [
-            'estado_fisico'=>$request->estado_fisico,
             'escala'=>$request->escala,
             'compatibilidad'=>$request->compatibilidad,
             'reemplazo'=>$request->reemplazo,
@@ -38,9 +37,9 @@ class EvaluacionesExport implements FromCollection, ShouldAutoSize, WithHeadings
             'notas'=>$request->notas,
             'producto_id'=>$request->productos->map(function($producto){
                 return $producto?->nombre;
-            })->implode(',') ?? "Sin data",
-            'estatus_id'=>$request->estatus->nombre??"Sin data",
-            'descripcion_id'=>$request->descripcion->modelo,
+            })->implode(',') ?? null,
+            'estatus_id'=>$request->estatus?->nombre??"Sin data",
+            'descripcion_id'=>$request->descripcion?->modelo,
         ];
     }
 

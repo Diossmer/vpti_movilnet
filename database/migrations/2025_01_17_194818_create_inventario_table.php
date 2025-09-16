@@ -63,13 +63,11 @@ return new class extends Migration
 
         Schema::create('evaluaciones', function (Blueprint $table) {
             $table->id();
-            $table->string('estado_fisico')->nullable();
             $table->string('escala')->nullable();
             $table->string('compatibilidad')->nullable();
             $table->string('reemplazo')->nullable();
-            $table->string('mantenimineto')->nullable();
+            $table->string('mantenimiento')->nullable();
             $table->text('notas')->nullable();
-            $table->foreignId('producto_id')->nullable()->constrained('productos')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('estatus_id')->nullable()->constrained('estatus')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('descripcion_id')->unique()->nullable()->constrained('descripcion')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
