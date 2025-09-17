@@ -18,14 +18,12 @@ class Asignacion extends Model
         'usuario_id',
         'estatus_id',
         'descripcion_id',
-        'producto_id',
     ];
 
     protected $hidden = [
         'usuario_id',
         'estatus_id',
         'descripcion_id',
-        'producto_id',
         'created_at',
         'updated_at'
     ];

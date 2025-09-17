@@ -43,17 +43,19 @@ class UbicacionController extends Controller
         try {
             if(Auth::check()){
                 $validated = $request->validate([
-                    'origen' => 'required|string|max:255|different:destino',
-                    'destino' => 'required|string|max:255',
-                    'piso' => 'required|string',
-                    'region' => 'required|string|max:255',
-                    'capital' => 'required|string|max:255',
-                    'descripcion_id' => 'required|integer|exists:descripcion,id'
+                    'origen' => 'nullable|string|max:255|different:destino',
+                    'destino' => 'nullable|string|max:255',
+                    'piso' => 'nullable|string',
+                    'region' => 'nullable|string|max:255',
+                    'capital' => 'nullable|string|max:255',
+                    'descripcion_id' => 'nullable|integer|exists:descripcion,id',
+                    'producto_id' => 'required|array|exists:productos,id',
                 ], [
                     'origen.different' => 'Origen y destino deben ser diferentes',
                     'region' => 'Región no válida. Opciones: Norte, Sur, Este, Oeste, Centro',
-                    'escuela.required' => 'El campo núcleo es obligatorio.',
-                    'escuela.string' => 'El núcleo debe ser un texto.',
+                    'producto_id.exists' => 'El producto especificado no existe',
+                    'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                 ]);
 
                 $ubicacion = Ubicacion::create([
@@ -65,6 +67,9 @@ class UbicacionController extends Controller
                     'capital'=>$request->capital,
                     'descripcion_id'=>$request->descripcion_id,
                 ])->load(['productos', 'descripcion']);
+                if($request->filled('producto_id')){
+                    $ubicacion->productos()->sync($request->producto_id);
+                }
                 if(is_null($ubicacion)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado guardar un ubicacion.", 404);
@@ -111,15 +116,19 @@ class UbicacionController extends Controller
         try {
             if(Auth::check()){
                 $validated = $request->validate([
-                    'origen' => 'required|string|max:255|different:destino',
-                    'destino' => 'required|string|max:255',
-                    'piso' => 'required|string',
-                    'region' => 'required|string|max:255',
-                    'capital' => 'required|string|max:255',
-                    'descripcion_id' => 'required|integer|exists:descripcion,id'
+                    'origen' => 'nullable|string|max:255|different:destino',
+                    'destino' => 'nullable|string|max:255',
+                    'piso' => 'nullable|string',
+                    'region' => 'nullable|string|max:255',
+                    'capital' => 'nullable|string|max:255',
+                    'descripcion_id' => 'nullable|integer|exists:descripcion,id',
+                    'producto_id' => 'required|array|exists:productos,id',
                 ], [
                     'origen.different' => 'Origen y destino deben ser diferentes',
                     'region' => 'Región no válida. Opciones: Norte, Sur, Este, Oeste, Centro',
+                    'producto_id.exists' => 'El producto especificado no existe',
+                    'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                 ]);
 
                 $ubicacion = Ubicacion::with('productos', 'descripcion')->find($id);
@@ -137,6 +146,9 @@ class UbicacionController extends Controller
                     'capital'=>$request->capital,
                     'descripcion_id'=>$request->descripcion_id,
                 ]);
+                if($request->filled('producto_id')){
+                    $ubicacion->productos()->sync($request->producto_id);
+                }
                 Log::channel('usuario')->info('Se actualizó correctamente.'.$ubicacion,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);
             }else{

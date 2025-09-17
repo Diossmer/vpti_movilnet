@@ -33,9 +33,9 @@ class UbicacionesImport implements ToCollection, WithHeadingRow, WithBatchInsert
     {
         foreach ($rows as $row) {
             try {
-                if (empty($row["descripcion"])) {
+                if (empty($row["descripcion"]) || empty($row["productos"])) {
                     $this->registrosPendientes++;
-                    throw new \Exception("Fila inválida: producto está vacío.");
+                    throw new \Exception("Fila inválida: descripción o producto están vacíos.");
                 }
                 $ubicacion = \App\Models\Inventario\Ubicacion::updateOrCreate(
                     [

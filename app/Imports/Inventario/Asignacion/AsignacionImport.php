@@ -83,7 +83,7 @@ class AsignacionImport implements ToCollection, WithHeadingRow, WithBatchInserts
 
     public function uniqueBy()
     {
-        return ['producto_id'];
+        return ['estatus_id','descripcion_id','usuario_id','producto_id'];
     }
 
     public function rules(): array

@@ -38,7 +38,7 @@ return new class extends Migration
 
         Schema::create('ubicacion_productos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ubicacion_id')->nullable()->constrained('evaluaciones')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('ubicacion_id')->nullable()->constrained('ubicacion')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('producto_id')->nullable()->constrained('productos')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });

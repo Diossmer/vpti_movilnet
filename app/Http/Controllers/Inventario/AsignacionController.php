@@ -43,7 +43,7 @@ class AsignacionController extends Controller
         try {
             if(Auth::check()){
                 $request->validate([
-                    'fecha_asignar' => 'required|date|after_or_equal:today',
+                    'fecha_asignar' => 'required|date|before_or_equal:fecha_devolucion',
                     'fecha_devolucion' => 'nullable|date',
                     'comentario' => 'nullable|string|max:500',
                     'destino' => 'nullable|string',
@@ -53,8 +53,7 @@ class AsignacionController extends Controller
                     'descripcion_id'=>'required|exists:descripcion,id',
                 ], [
                     'fecha_asignar.required' => 'La fecha de asignación es obligatoria',
-                    'fecha_asignar.after_or_equal' => 'No puedes asignar en fechas pasadas',
-                    'fecha_devolucion.after_or_equal' => 'La devolución debe ser posterior a la asignación',
+                    'fecha_asignar.before_or_equal:fecha_devolucion' => 'La fecha de asignación no puede ser mayor a la fecha de devolución',
                     'destino.string' => 'el destino tiene que ser un texto',
                     'comentario.max' => 'El comentario no debe exceder 500 caracteres',
                     'estatus_id.exists' => 'Estado no válido',
@@ -121,10 +120,9 @@ class AsignacionController extends Controller
     {
         try {
             if(Auth::check()){
-                
                 $request->validate([
-                    'fecha_asignar' => 'required|date|after_or_equal:today',
-                    'fecha_devolucion' => 'nullable|date|after_or_equal:fecha_asignar',
+                    'fecha_asignar' => 'required|date|before_or_equal:fecha_devolucion',
+                    'fecha_devolucion' => 'nullable|date',
                     'comentario' => 'nullable|string|max:500',
                     'destino' => 'nullable|string',
                     'usuario_id' => 'required|integer|exists:usuarios,id',
@@ -133,8 +131,7 @@ class AsignacionController extends Controller
                     'descripcion_id'=>'required|exists:descripcion,id',
                 ], [
                     'fecha_asignar.required' => 'La fecha de asignación es obligatoria',
-                    'fecha_asignar.after_or_equal' => 'No puedes asignar en fechas pasadas',
-                    'fecha_devolucion.after_or_equal' => 'La devolución debe ser posterior a la asignación',
+                    'fecha_asignar.before_or_equal:fecha_devolucion' => 'La fecha de asignación no puede ser mayor a la fecha de devolución',
                     'destino.string' => 'el destino tiene que ser un texto',
                     'comentario.max' => 'El comentario no debe exceder 500 caracteres',
                     'estatus_id.exists' => 'Estado no válido',
@@ -144,7 +141,6 @@ class AsignacionController extends Controller
                     'producto_id.required' => 'El campo producto_id es obligatorio.',
                     'producto_id.array' => 'El campo producto_id debe ser un número entero.',
                 ]);
-
                 $asignacion = Asignacion::with('productos', 'estatus', 'usuario', 'descripcion')->find($id);
                 if(is_null($asignacion)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un asignacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -206,10 +202,10 @@ class AsignacionController extends Controller
     public function exportar(string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Asignacion::with('estatus','productos', 'usuario')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Asignacion::with('productos', 'estatus', 'usuario', 'descripcion')->where('id','=',$id)->get()->makeHidden(['id']));
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Asignacion::with('estatus','productos', 'usuario')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Asignacion::with('productos', 'estatus', 'usuario', 'descripcion')->get()->makeHidden(['id']));
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);

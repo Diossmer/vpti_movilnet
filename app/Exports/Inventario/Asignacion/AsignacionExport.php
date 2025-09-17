@@ -30,14 +30,14 @@ class AsignacionExport implements FromCollection, ShouldAutoSize, WithHeadings, 
     public function map($request): array
     {
         return [            
-            'fecha_asignar'=>$request->fecha_asignar??"Sin data",
-            'fecha_devolucion'=>$request->fecha_devolucion??"Sin data",
+            'fecha_asignar'=>$request->fecha_asignar??null,
+            'fecha_devolucion'=>$request->fecha_devolucion??null,
             'destino'=>$request->destino??"Sin data",
             'comentario'=>$request->comentario??"Sin data",
-            'estatus_id'=>$request->estatus?->nombre??"Sin data",
-            'producto_id'=>$request->productos?->map(function($producto){
+            'productos'=>$request->productos?->map(function($producto){
                 return $producto->nombre;
             })->implode(',')??"Sin data",
+            'estatus_id'=>$request->estatus?->nombre??"Sin data",
             'usuario_id'=>$request->usuario->usuario??"sin data",
             'descripcion_id'=>$request->descripcion->modelo??"sin data",
         ];
