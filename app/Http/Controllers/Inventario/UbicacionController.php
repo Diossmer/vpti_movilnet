@@ -44,11 +44,11 @@ class UbicacionController extends Controller
             if(Auth::check()){
                 $validated = $request->validate([
                     'origen' => 'nullable|string|max:255|different:destino',
-                    'destino' => 'nullable|string|max:255',
+                    'destino' => 'required|string|max:255',
                     'piso' => 'nullable|string',
                     'region' => 'nullable|string|max:255',
                     'capital' => 'nullable|string|max:255',
-                    'descripcion_id' => 'nullable|integer|exists:descripcion,id',
+                    'descripcion_id' => 'required|integer|exists:descripcion,id',
                     'producto_id' => 'required|array|exists:productos,id',
                 ], [
                     'origen.different' => 'Origen y destino deben ser diferentes',
@@ -117,11 +117,11 @@ class UbicacionController extends Controller
             if(Auth::check()){
                 $validated = $request->validate([
                     'origen' => 'nullable|string|max:255|different:destino',
-                    'destino' => 'nullable|string|max:255',
+                    'destino' => 'required|string|max:255',
                     'piso' => 'nullable|string',
                     'region' => 'nullable|string|max:255',
                     'capital' => 'nullable|string|max:255',
-                    'descripcion_id' => 'nullable|integer|exists:descripcion,id',
+                    'descripcion_id' => 'required|integer|exists:descripcion,id',
                     'producto_id' => 'required|array|exists:productos,id',
                 ], [
                     'origen.different' => 'Origen y destino deben ser diferentes',
