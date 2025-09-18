@@ -35,15 +35,15 @@ class DescripcionesExport implements FromCollection, ShouldAutoSize, WithHeading
             'dispositivo'=>$request->dispositivo??"Sin data",
             'serial'=>$request->serial??"Sin data",
             'marca'=>$request->marca??"Sin data",
-            'codigo_inv'=>$request->codigo_inv??"Sin data",
             'observacion'=>$request->observacion??"Sin data",
-            'producto_id'=>$request->producto->nombre??"Sin data",
+            'codigo_inv'=>$request->codigo_inv??"Sin data",
+            'producto_id'=>$request->producto->nombre??null,
             'asignaciones'=>$request->asignaciones->map(function($asignacion){
                 return $asignacion?->destino;
-            })->implode(',') ?? "Sin data",
+            })->implode(',') ?? null,
             'evaluaciones'=>$request->evaluaciones->map(function($evaluacion){
-                return $evaluacion->estado_fisico;
-            })->implode(',') ?? "Sin data",
+                return \App\Models\Estatus::where('id','=',$evaluacion->estatus_id)->first()?->nombre;
+            })->implode(',') ?? null,
         ];
     }
 

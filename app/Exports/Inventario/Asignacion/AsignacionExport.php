@@ -34,12 +34,12 @@ class AsignacionExport implements FromCollection, ShouldAutoSize, WithHeadings, 
             'fecha_devolucion'=>$request->fecha_devolucion??null,
             'destino'=>$request->destino??"Sin data",
             'comentario'=>$request->comentario??"Sin data",
+            'usuario_id'=>$request->usuario->usuario??null,
+            'estatus_id'=>$request->estatus?->nombre??null,
+            'descripcion_id'=>$request->descripcion->modelo??null,
             'productos'=>$request->productos?->map(function($producto){
                 return $producto->nombre;
-            })->implode(',')??"Sin data",
-            'estatus_id'=>$request->estatus?->nombre??"Sin data",
-            'usuario_id'=>$request->usuario->usuario??"sin data",
-            'descripcion_id'=>$request->descripcion->modelo??"sin data",
+            })->implode(',')??null,
         ];
     }
 

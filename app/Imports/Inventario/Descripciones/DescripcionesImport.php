@@ -37,7 +37,7 @@ class DescripcionesImport implements ToCollection, WithHeadingRow, WithBatchInse
                     $this->registrosPendientes++;
                     throw new \Exception("Fila inválida: producto está vacío.");
                 }
-                \App\Models\Inventario\Descripcion::updateOrCreate(
+                $descripcion = \App\Models\Inventario\Descripcion::updateOrCreate(
                     [
                         'observacion' => trim($row["observacion"]),
                         'producto_id' => trim($row["producto"])
@@ -53,6 +53,10 @@ class DescripcionesImport implements ToCollection, WithHeadingRow, WithBatchInse
                         'producto_id' => \App\Models\Inventario\Productos::where('nombre','=',Str::lower(trim($row['producto'])))->first()?->id ?? null,
                     ]
                 );
+                $asignacionesId = \App\Models\Inventario\Asignacion::whereIn('destino',array_map('Str::lower', array_map('trim', explode(',', $row['asignaciones']))))->get()->pluck('id')->toArray();
+                $descripcion->asignaciones()->sync($asignacionesId);
+                $evaluacionesId = \App\Models\Inventario\Evaluaciones::whereIn('estatus_id',array_map('Str::lower', array_map('trim', explode(',', $row['evaluaciones']))))->get()->pluck('id')->toArray();
+                $descripcion->evaluaciones()->sync($evaluacionesId);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {

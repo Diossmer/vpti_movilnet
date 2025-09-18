@@ -30,9 +30,9 @@ class ProductosExport implements FromCollection, ShouldAutoSize, WithHeadings, W
     public function map($request): array
     {
         return [
-            'nombre'=>$request->nombre,
-            'usuario_id'=>$request->usuario->usuario,
-            'estatus_id'=>$request->estatus->nombre,
+            'nombre'=>$request->nombre??"Sin data",
+            'usuario_id'=>$request->usuario->usuario??null,
+            'estatus_id'=>$request->estatus->nombre??null,
         ];
     }
 

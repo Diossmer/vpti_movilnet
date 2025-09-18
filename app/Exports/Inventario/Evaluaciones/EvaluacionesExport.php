@@ -30,16 +30,16 @@ class EvaluacionesExport implements FromCollection, ShouldAutoSize, WithHeadings
     public function map($request): array
     {
         return [
-            'escala'=>$request->escala,
-            'compatibilidad'=>$request->compatibilidad,
-            'reemplazo'=>$request->reemplazo,
-            'mantenimiento'=>$request->mantenimiento,
-            'notas'=>$request->notas,
+            'escala'=>$request->escala??"Sin data",
+            'compatibilidad'=>$request->compatibilidad??"Sin data",
+            'reemplazo'=>$request->reemplazo??"Sin data",
+            'mantenimiento'=>$request->mantenimiento??"Sin data",
+            'notas'=>$request->notas??"Sin data",
+            'estatus_id'=>$request->estatus?->nombre??null,
+            'descripcion_id'=>$request->descripcion?->modelo??null,
             'producto_id'=>$request->productos->map(function($producto){
                 return $producto?->nombre;
-            })->implode(',') ?? null,
-            'estatus_id'=>$request->estatus?->nombre??"Sin data",
-            'descripcion_id'=>$request->descripcion?->modelo,
+            })->implode(',')??null,
         ];
     }
 

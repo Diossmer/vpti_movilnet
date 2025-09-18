@@ -42,7 +42,7 @@ class DescripcionController extends Controller
         try {
             if(Auth::check()){
                 $request->validate([
-                    'codigo' => 'required|string|max:255',
+                    'codigo' => 'nullable|string|max:255',
                     'modelo' => 'required|string|max:255',
                     'dispositivo' => 'required|string|max:255',
                     'serial' => 'required|string|max:255',
@@ -125,7 +125,7 @@ class DescripcionController extends Controller
         try {
             if(Auth::check()){
                 $request->validate([
-                    'codigo' => 'required|string|max:255',
+                    'codigo' => 'nullable|string|max:255',
                     'modelo' => 'required|string|max:255',
                     'dispositivo' => 'required|string|max:255',
                     'serial' => 'required|string|max:255',

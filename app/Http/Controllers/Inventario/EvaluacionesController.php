@@ -20,7 +20,7 @@ class EvaluacionesController extends Controller
     {
         try {
             if(Auth::check()){
-                $evaluacion = Evaluaciones::with('productos','estatus','descripcion')->get();
+                $evaluacion = Evaluaciones::with('estatus','descripcion','productos')->get();
                 if($evaluacion->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un evaluacion.", 404);
@@ -48,12 +48,11 @@ class EvaluacionesController extends Controller
                     'reemplazo' => 'nullable|string',
                     'mantenimiento' => 'nullable|string|max:500',
                     'notas' => 'nullable|string|max:1000',
-                    'producto_id' => 'required|array|exists:productos,id',
                     'estatus_id' => 'required|integer|exists:estatus,id',
                     'descripcion_id' => 'required|integer|exists:descripcion,id',
+                    'producto_id' => 'required|array|exists:productos,id',
                 ],
                 [
-                    'mantenimiento.required' => 'El campo mantenimiento es obligatorio', // Sugerir corrección de typo en mensaje
                     'producto_id.exists' => 'El producto especificado no existe',
                     'producto_id.required' => 'El campo producto_id es obligatorio.',
                     'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
@@ -70,7 +69,7 @@ class EvaluacionesController extends Controller
                     'notas'=>$request->notas,
                     'estatus_id'=>$request->estatus_id,
                     'descripcion_id'=>$request->descripcion_id,
-                ])->load(['productos','estatus','descripcion']);
+                ])->load(['estatus','descripcion','productos']);
                 if($request->filled('producto_id')){
                     $evaluacion->productos()->sync($request->producto_id);
                 }
@@ -98,7 +97,7 @@ class EvaluacionesController extends Controller
     {
         try {
             if(Auth::check()){
-                $evaluacion = Evaluaciones::with('productos','estatus','descripcion')->find($id);
+                $evaluacion = Evaluaciones::with('estatus','descripcion','productos')->find($id);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado mostrar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado mostrar un evaluacion.", 404);
@@ -126,12 +125,11 @@ class EvaluacionesController extends Controller
                     'reemplazo' => 'nullable|string',
                     'mantenimiento' => 'nullable|string|max:500',
                     'notas' => 'nullable|string|max:1000',
-                    'producto_id' => 'required|array|exists:productos,id',
                     'estatus_id' => 'required|integer|exists:estatus,id',
                     'descripcion_id' => 'required|integer|exists:descripcion,id',
+                    'producto_id' => 'required|array|exists:productos,id',
                 ],
                 [
-                    'mantenimiento.required' => 'El campo mantenimiento es obligatorio', // Sugerir corrección de typo en mensaje
                     'producto_id.exists' => 'El producto especificado no existe',
                     'producto_id.required' => 'El campo producto_id es obligatorio.',
                     'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
@@ -139,7 +137,7 @@ class EvaluacionesController extends Controller
                     'descripcion_id.exists' => 'La descripción seleccionada no existe'
                 ]);
 
-                $evaluacion = Evaluaciones::with('productos','estatus','descripcion')->find($id);
+                $evaluacion = Evaluaciones::with('estatus','descripcion','productos')->find($id);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado actualizar un evaluacion.", 404);
@@ -178,7 +176,7 @@ class EvaluacionesController extends Controller
     {
         try {
             if(Auth::check()){
-                $evaluacion = Evaluaciones::with('productos','estatus','descripcion')->find($id);
+                $evaluacion = Evaluaciones::with('estatus','descripcion','productos')->find($id);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado eliminar evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado eliminar evaluacion.", 404);
@@ -202,10 +200,10 @@ class EvaluacionesController extends Controller
     public function exportar(string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Evaluaciones::with('productos','estatus','descripcion')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Evaluaciones::with('estatus','descripcion','productos')->where('id','=',$id)->get()->makeHidden(['id']));
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Evaluaciones::with('productos','estatus','descripcion')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Evaluaciones::with('estatus','descripcion','productos')->get()->makeHidden(['id']));
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -260,7 +258,7 @@ class EvaluacionesController extends Controller
 
     public function generatepdf(string $id=null, string $docs=null){
         // Obtén los datos necesarios para generar el PDF
-        $evaluacion = Evaluaciones::with('productos', 'usuario', 'estatus', 'cargo')->where('id','=',$id)?->first()?? null;
+        $evaluacion = Evaluaciones::with('estatus','descripcion','productos')->where('id','=',$id)?->first()?? null;
         $authenticado = Auth::user();
         // Genera el PDF
         $pdf = PDF::loadView('pdf.autorizacion',compact('evaluacion','authenticado'));

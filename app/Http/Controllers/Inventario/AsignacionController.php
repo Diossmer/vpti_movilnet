@@ -21,7 +21,7 @@ class AsignacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $asignacion = Asignacion::with('productos', 'estatus', 'usuario', 'descripcion')->get();
+                $asignacion = Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->get();
                 if($asignacion->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un asignacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un asignacion.", 404);
@@ -71,7 +71,7 @@ class AsignacionController extends Controller
                     'estatus_id'=>$request->estatus_id,
                     'usuario_id'=>(Auth::id()===1)?$request->usuario_id:Auth::id(),
                     'descripcion_id'=>$request->descripcion_id,
-                ])->load(['productos', 'estatus', 'usuario', 'descripcion']);
+                ])->load(['usuario', 'estatus', 'descripcion', 'productos']);
                 if($request->filled('producto_id')){
                     $asignacion->productos()->sync($request->producto_id);
                 }
@@ -99,7 +99,7 @@ class AsignacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $asignacion = Asignacion::with('productos', 'estatus', 'usuario', 'descripcion')->find($id);
+                $asignacion = Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->find($id);
                 if(is_null($asignacion)){
                     Log::channel('sistema')->debug('No se ha logrado mostrar un asignacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado mostrar un asignacion.", 404);
@@ -141,7 +141,7 @@ class AsignacionController extends Controller
                     'producto_id.required' => 'El campo producto_id es obligatorio.',
                     'producto_id.array' => 'El campo producto_id debe ser un número entero.',
                 ]);
-                $asignacion = Asignacion::with('productos', 'estatus', 'usuario', 'descripcion')->find($id);
+                $asignacion = Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->find($id);
                 if(is_null($asignacion)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un asignacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado actualizar un asignacion.", 404);
@@ -178,7 +178,7 @@ class AsignacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $asignacion = Asignacion::with('productos', 'estatus', 'usuario', 'descripcion')->find($id);
+                $asignacion = Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->find($id);
                 if(is_null($asignacion)){
                     Log::channel('sistema')->debug('No se ha logrado eliminar asignacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado eliminar asignacion.", 404);
@@ -202,10 +202,10 @@ class AsignacionController extends Controller
     public function exportar(string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Asignacion::with('productos', 'estatus', 'usuario', 'descripcion')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->where('id','=',$id)->get()->makeHidden(['id']));
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Asignacion::with('productos', 'estatus', 'usuario', 'descripcion')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->get()->makeHidden(['id']));
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -260,7 +260,7 @@ class AsignacionController extends Controller
 
     public function generatepdf(string $id=null, string $docs=null){
         // Obtén los datos necesarios para generar el PDF
-        $asistencias = \App\Models\Asistencias::with('usuario','estatus')->get();
+        $asistencias = \App\Models\Asignacion::with('usuario', 'estatus',  'descripcion', 'productos')->get();
         $data = [
             'title' => 'Reporte de Ventas',
             'date' => date('d/m/Y'),

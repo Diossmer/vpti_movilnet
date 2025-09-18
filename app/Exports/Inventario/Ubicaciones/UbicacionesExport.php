@@ -34,12 +34,12 @@ class UbicacionesExport implements FromCollection, ShouldAutoSize, WithHeadings,
             'destino'=>$request->destino??"Sin data",
             'piso'=>$request->piso??0,
             'region'=>$request->region??"Sin data",
-            'capital'=>$request->capital??"Sin data",
             'estado'=>$request->estado??"Sin data",
+            'capital'=>$request->capital??"Sin data",
+            'descripcion_id'=>$request->descripcion->modelo??null,
             'producto_id'=>$request->productos->map(function($producto){
                 return $producto?->nombre;
-            })->implode(',') ?? "Sin data",
-            'descripcion_id'=>$request->descripcion->modelo??"Sin data",
+            })->implode(',') ?? null,
         ];
     }
 

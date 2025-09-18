@@ -42,14 +42,14 @@ class UsuariosExport implements FromCollection, ShouldAutoSize, WithHeadings, Wi
             'telefono_celular'=>$request->telefono_celular??"Sin data",
             'telefono_alternativo'=>$request->telefono_alternativo??"Sin data",
             'codigo_postal'=>$request->codigo_postal??"Sin data",
-            'estatus_id'=>$request->estatus->nombre??"Sin data",
-            'rol_id'=>$request->rol->nombre??"Sin data",
+            'estatus_id'=>$request->estatus->nombre??null,
+            'rol_id'=>$request->rol->nombre??null,
             'productos'=>$request->productos->map(function($producto){
                 return $producto?->nombre;
-            })->implode(',') ?? "Sin data",
+            })->implode(',') ?? null,
             'asignaciones'=>$request->asignaciones->map(function($asignacion){
                 return $asignacion?->destino;
-            })->implode(',') ?? "Sin data",
+            })->implode(',') ?? null,
         ];
     }
 
