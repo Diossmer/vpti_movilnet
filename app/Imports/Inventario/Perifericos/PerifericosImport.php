@@ -48,8 +48,8 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
                         'estatus_id' => \App\Models\Estatus::where('nombre','=',$row['estatus'])->first()->id ?? null,
                     ]
                 );
-                $perifericoID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
-                $perifericos->productos()->sync($perifericoID);
+                $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $perifericos->productos()->sync($productosID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {

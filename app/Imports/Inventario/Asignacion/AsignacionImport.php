@@ -54,8 +54,8 @@ class AsignacionImport implements ToCollection, WithHeadingRow, WithBatchInserts
                         'comentario' => Str::lower(trim($row['comentario'])) ?? null,
                     ]
                 );
-                $productoId = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
-                $asignar->productos()->sync($productoId);
+                $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $asignar->productos()->sync($productosID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {

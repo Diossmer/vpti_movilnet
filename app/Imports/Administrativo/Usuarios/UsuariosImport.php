@@ -40,7 +40,7 @@ class UsuariosImport implements ToCollection, WithHeadingRow, WithBatchInserts, 
                 }
 
                 // Busca un usuario con la misma cédula, usuario y correo, o crea uno nuevo
-                \App\Models\Usuarios::updateOrCreate(
+                $usuario = \App\Models\Usuarios::updateOrCreate(
                     [
                         'cedula' => $row["cedula"],
                         'usuario' => $row["usuario"],
@@ -62,7 +62,10 @@ class UsuariosImport implements ToCollection, WithHeadingRow, WithBatchInserts, 
                         'rol_id' => \App\Models\Roles::where('nombre','=',$row['rol'])->first()->id ?? null,
                     ]
                 );
-
+                $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $usuario->productos()->sync($productosID);
+                $asignacionID = \App\Models\Inventario\Asignacion::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['asignaciones']))))->get()->pluck('id')->toArray();
+                $usuario->asignaciones()->sync($asignacionID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {

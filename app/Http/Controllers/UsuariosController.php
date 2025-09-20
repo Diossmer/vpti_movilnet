@@ -160,9 +160,9 @@ class UsuariosController extends Controller
                 $request->validate([
                     'nombre' => 'required|string|max:255',
                     'apellido' => 'required|string|max:255',
-                    'cedula' => 'required|string|max:20|unique:usuarios,cedula',
-                    'usuario' => 'required|string|max:255|unique:usuarios,usuario',
-                    'correo' => 'required|email|max:255|unique:usuarios,correo',
+                    'cedula' => 'required|string|max:20|unique:usuarios,cedula,'.$id,
+                    'usuario' => 'required|string|max:255|unique:usuarios,usuario,'.$id,
+                    'correo' => 'required|email|max:255|unique:usuarios,correo,'.$id,
                     'direccion' => 'nullable|string|max:500',
                     'ciudad' => 'nullable|string|max:255',
                     'estado' => 'nullable|string|max:255',

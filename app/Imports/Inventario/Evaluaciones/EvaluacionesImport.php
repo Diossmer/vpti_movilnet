@@ -54,8 +54,8 @@ class EvaluacionesImport implements ToCollection, WithHeadingRow, WithBatchInser
                         'notas'=>Str::lower(trim($row['notas']))?? null,
                     ]
                 );
-                $evaluacionID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
-                $evaluacion->productos()->sync($evaluacionID);
+                $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $evaluacion->productos()->sync($productosID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {

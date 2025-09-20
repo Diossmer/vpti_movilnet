@@ -50,8 +50,8 @@ class UbicacionesImport implements ToCollection, WithHeadingRow, WithBatchInsert
                         'capital'=>Str::lower(trim($row['capital'])) ?? null,
                     ]
                 );
-                $ubicacionID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
-                $ubicacion->productos()->sync($ubicacionID);
+                $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $ubicacion->productos()->sync($productosID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
