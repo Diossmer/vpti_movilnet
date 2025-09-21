@@ -42,7 +42,7 @@ class AsignacionController extends Controller
         try {
             if(Auth::check()){
                 $request->validate([
-                    'fecha_asignar' => 'required|date|before_or_equal:fecha_devolucion',
+                    'fecha_asignar' => 'required|date',
                     'fecha_devolucion' => 'nullable|date',
                     'comentario' => 'nullable|string|max:500',
                     'destino' => 'required|string',
@@ -52,7 +52,6 @@ class AsignacionController extends Controller
                     'descripcion_id'=>'required|exists:descripcion,id',
                 ], [
                     'fecha_asignar.required' => 'La fecha de asignación es obligatoria',
-                    'fecha_asignar.before_or_equal:fecha_devolucion' => 'La fecha de asignación no puede ser mayor a la fecha de devolución',
                     'destino.string' => 'el destino tiene que ser un texto',
                     'comentario.max' => 'El comentario no debe exceder 500 caracteres',
                     'estatus_id.exists' => 'Estado no válido',
@@ -120,7 +119,7 @@ class AsignacionController extends Controller
         try {
             if(Auth::check()){
                 $request->validate([
-                    'fecha_asignar' => 'required|date|before_or_equal:fecha_devolucion',
+                    'fecha_asignar' => 'required|date',
                     'fecha_devolucion' => 'nullable|date',
                     'comentario' => 'nullable|string|max:500',
                     'destino' => 'required|string',
@@ -130,7 +129,6 @@ class AsignacionController extends Controller
                     'descripcion_id'=>'required|exists:descripcion,id',
                 ], [
                     'fecha_asignar.required' => 'La fecha de asignación es obligatoria',
-                    'fecha_asignar.before_or_equal:fecha_devolucion' => 'La fecha de asignación no puede ser mayor a la fecha de devolución',
                     'destino.string' => 'el destino tiene que ser un texto',
                     'comentario.max' => 'El comentario no debe exceder 500 caracteres',
                     'estatus_id.exists' => 'Estado no válido',

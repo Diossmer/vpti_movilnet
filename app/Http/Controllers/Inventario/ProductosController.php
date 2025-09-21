@@ -43,11 +43,10 @@ class ProductosController extends Controller
             if(Auth::check()){
                 $request->validate([
                     'nombre' => 'required|string|max:255',
-                    'usuario_id' => 'required|exists:usuarios,id',
+                    'usuario_id' => 'exists:usuarios,id',
                     'estatus_id' => 'required|exists:estatus,id',
                 ], [
                     'nombre.required' => 'El campo nombre del producto está vacío.',
-                    'usuario_id.required' => 'El campo usuarios es obligatorio.',
                     'usuario_id.exists' => 'El usuarios seleccionado no es válido.',
                     'estatus_id.required' => 'El campo estatus es obligatorio.',
                     'estatus_id.exists' => 'El estatus seleccionado no es válido.',
@@ -105,12 +104,10 @@ class ProductosController extends Controller
             if(Auth::check()){
                 $request->validate([
                     'nombre' => 'required|string|max:255',
-                    'usuario_id' => 'required|exists:usuarios,id',
+                    'usuario_id' => 'exists:usuarios,id',
                     'estatus_id' => 'required|exists:estatus,id',
-                    'categoria_id' => 'required|exists:categorias,id',
                 ], [
                     'nombre.required' => 'El campo nombre del producto está vacío.',
-                    'usuario_id.required' => 'El campo usuarios es obligatorio.',
                     'usuario_id.exists' => 'El usuarios seleccionado no es válido.',
                     'estatus_id.required' => 'El campo estatus es obligatorio.',
                     'estatus_id.exists' => 'El estatus seleccionado no es válido.',
