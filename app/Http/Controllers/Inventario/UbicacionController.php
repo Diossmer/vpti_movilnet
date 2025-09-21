@@ -90,7 +90,7 @@ class UbicacionController extends Controller
         }
     }
 
-    public function show(string $id)
+    public function show(?string $id)
     {
         try {
             if(Auth::check()){
@@ -111,7 +111,7 @@ class UbicacionController extends Controller
         }
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, ?string $id)
     {
         try {
             if(Auth::check()){
@@ -164,7 +164,7 @@ class UbicacionController extends Controller
         }
     }
 
-    public function destroy(string $id)
+    public function destroy(?string $id)
     {
         try {
             if(Auth::check()){
@@ -189,7 +189,7 @@ class UbicacionController extends Controller
         }
     }
 
-    public function exportar(string $id=null){
+    public function exportar(?string $id=null){
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Ubicacion::with('descripcion','productos')->where('id','=',$id)->get()->makeHidden(['id']));
@@ -248,22 +248,36 @@ class UbicacionController extends Controller
         }
     }
 
-    public function generatepdf(string $id=null, string $docs=null){
-        // Obtén los datos necesarios para generar el PDF
-        $asistencias = \App\Models\Asistencias::with('usuario','estatus')->get();
-        $data = [
-            'title' => 'Reporte de Ventas',
-            'date' => date('d/m/Y'),
-            'asistencias' => $asistencias,
-        ];
+    /**
+     * Genera un reporte PDF de inventario.
+     *
+     * @param string|null $id
+     * @param string|null $docs
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
+    public function generatepdf(?string $id = null, ?string $docs = null)
+    {
+        try {
+            // Preparar los datos para la vista.
+            $data = [
+                'title' => Auth::user()?->rol->nombre ?? '',
+                'subtitle' => $docs ?? null,
+                'date' => date('d/m/Y'),
+                'ubicaciones' => Ubicacion::with('descripcion','productos')->get(),
+                'usuario' => \App\Models\Usuarios::find($id)?? '',
+                //'usuario' => \App\Models\Usuarios::find(Auth::id())?? '',
+            ];
 
-        // Genera el PDF
-        $pdf = PDF::loadView('pdf.reporte', $data);
+            // Generar y mostrar el PDF.
+            $pdf = Pdf::loadView('pdf.ubicaciones', $data);
+            return $pdf->stream("reporte_inventario.pdf");
 
-        // Descarga el PDF
-        return $pdf->download("{$id}.pdf");
-
-        // Muestra el PDF en el navegador
-        // return $pdf->stream('reporte_ventas.pdf');
+        } catch (\Exception $e) {
+            // Registrar el error para depuración.
+            Log::error("Error al generar PDF: " . $e->getMessage());
+            
+            // Retornar una respuesta de error.
+            return response()->json(['error' => 'No se pudo generar el PDF. Por favor, inténtalo de nuevo.'], 500);
+        }
     }
 }

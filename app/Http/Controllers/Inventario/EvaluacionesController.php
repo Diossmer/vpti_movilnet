@@ -93,7 +93,7 @@ class EvaluacionesController extends Controller
         }
     }
 
-    public function show(string $id)
+    public function show(?string $id)
     {
         try {
             if(Auth::check()){
@@ -114,7 +114,7 @@ class EvaluacionesController extends Controller
         }
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, ?string $id)
     {
         try {
             if(Auth::check()){
@@ -172,7 +172,7 @@ class EvaluacionesController extends Controller
         }
     }
 
-    public function destroy(string $id)
+    public function destroy(?string $id)
     {
         try {
             if(Auth::check()){
@@ -197,7 +197,7 @@ class EvaluacionesController extends Controller
         }
     }
 
-    public function exportar(string $id=null){
+    public function exportar(?string $id=null){
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Evaluaciones::with('estatus','descripcion','productos')->where('id','=',$id)->get()->makeHidden(['id']));
@@ -255,15 +255,30 @@ class EvaluacionesController extends Controller
             }
         }
     }
+    
+    public function generatepdf(?string $id = null, ?string $docs = null)
+    {
+        try {
+            // Preparar los datos para la vista.
+            $data = [
+                'title' => Auth::user()?->rol->nombre ?? '',
+                'subtitle' => $docs ?? null,
+                'date' => date('d/m/Y'),
+                'evaluaciones' => Evaluaciones::with('estatus','descripcion','productos')->get(),
+                'usuario' => \App\Models\Usuarios::find($id)?? '',
+                //'usuario' => \App\Models\Usuarios::find(Auth::id())?? '',
+            ];
 
-    public function generatepdf(string $id=null, string $docs=null){
-        // Obtén los datos necesarios para generar el PDF
-        $evaluacion = Evaluaciones::with('estatus','descripcion','productos')->where('id','=',$id)?->first()?? null;
-        $authenticado = Auth::user();
-        // Genera el PDF
-        $pdf = PDF::loadView('pdf.autorizacion',compact('evaluacion','authenticado'));
-        // Descarga el PDF
-        return $pdf->stream("{$docs}.pdf");
-        //return $pdf->download("{$docs}.pdf");
+            // Generar y mostrar el PDF.
+            $pdf = Pdf::loadView('pdf.evaluaciones', $data);
+            return $pdf->stream("reporte_inventario.pdf");
+
+        } catch (\Exception $e) {
+            // Registrar el error para depuración.
+            Log::error("Error al generar PDF: " . $e->getMessage());
+            
+            // Retornar una respuesta de error.
+            return response()->json(['error' => 'No se pudo generar el PDF. Por favor, inténtalo de nuevo.'], 500);
+        }
     }
 }

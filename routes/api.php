@@ -14,21 +14,7 @@ Route::group(['middleware' => 'api','except' => ['ingresar']],function ($routes)
     //Route::get('correo/verificar/{id?}', [App\Http\Controllers\AuthController::class, 'verificar'])->name('verificar');
 });
 
-Route::middleware(['AsegurarToken'])->group(function () {
-    #############################################################
-    #########                  Archivos                 #########
-    #############################################################
-    //recursos
-    Route::post('importar', [App\Http\Controllers\Recursos\RecursosController::class, 'importar'])->name('importarrecursos');
-    Route::get('exportar/{id?}', [App\Http\Controllers\Recursos\RecursosController::class, 'exportar'])->name('exportarrecursos');
-    Route::get('pdf/{id?}/{docs?}', [App\Http\Controllers\Recursos\RecursosController::class, 'generatepdf'])->name('pdfrecursos');
-    Route::get('organigrama', [App\Http\Controllers\Recursos\RecursosController::class, 'organigrama'])->name('organigramarecursos');
-    #############################################################
-    #########                   Usuario                 #########
-    #############################################################
-    Route::get('cedulausuarios/{id?}', [App\Http\Controllers\Recursos\RecursosController::class, 'verificarCedula'])->name('cedulausuarioseliminar');
-});
-Route::middleware(['AsegurarToken'])->group(function () {
+Route::middleware(['api'])->group(function () { # AsegurarToken
     #############################################################
     #########               Administrativo              #########
     #########                   Usuario                 #########

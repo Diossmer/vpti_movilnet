@@ -79,7 +79,7 @@ class RolesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(?string $id)
     {
         try {
             if(Auth::check()){
@@ -104,7 +104,7 @@ class RolesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, ?string $id)
     {
         try {
             if(Auth::check()){
@@ -144,7 +144,7 @@ class RolesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(?string $id)
     {
         try {
             if(Auth::check()){
@@ -168,7 +168,7 @@ class RolesController extends Controller
         }
     }
 
-    public function exportar(string $id=null){
+    public function exportar(?string $id=null){
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Roles::where('id','=',$id)->get()->makeHidden(['id']));
@@ -227,22 +227,48 @@ class RolesController extends Controller
         }
     }
 
-    public function generatepdf(string $id=null, string $docs=null){
+    public function generatepdf(?string $id = null, ?string $docs = null)
+    {
+        // 1. Ruta de la imagen local en el servidor.
+        // Asegúrate de que esta ruta sea correcta y accesible.
+        $imagePath = '/var/www/html/UNETI/vpti_movilnet_vista/src/assets/img/logo2.png';
+
+        // 2. Obtén el contenido binario de la imagen.
+        try {
+            if (!file_exists($imagePath)) {
+                throw new \Exception("El archivo de imagen no se encuentra.");
+            }
+            $imageData = file_get_contents($imagePath);
+            
+            // 3. Obtén el tipo MIME de la imagen y convierte a Base64.
+            // Esto asegura que el prefijo `data:image/...` sea correcto.
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $imagePath);
+            finfo_close($finfo);
+
+            $base64Image = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
+        } catch (\Exception $e) {
+            // Maneja el error si la imagen no se puede obtener.
+            // Puedes usar una imagen de placeholder o un valor nulo.
+            $base64Image = null;
+            // Opcional: registra el error para depuración.
+            // \Log::error("Error al obtener la imagen: " . $e->getMessage());
+        }
+
         // Obtén los datos necesarios para generar el PDF
-        $asistencias = \App\Models\Asistencias::with('usuario','estatus')->get();
+        $inventarios = \App\Models\Inventario\Inventarios::with('estatus', 'productos')->get();
+        
         $data = [
             'title' => 'Reporte de Ventas',
             'date' => date('d/m/Y'),
-            'asistencias' => $asistencias,
+            'inventarios' => $inventarios,
+            'imagen_logo' => $base64Image, // Pasa la imagen Base64 a la vista
         ];
 
         // Genera el PDF
-        $pdf = PDF::loadView('pdf.reporte', $data);
-
-        // Descarga el PDF
-        return $pdf->download("{$id}.pdf");
+        $pdf = PDF::loadView('pdf.sinperifericos', $data);
 
         // Muestra el PDF en el navegador
-        // return $pdf->stream('reporte_ventas.pdf');
+        return $pdf->stream('reporte_ventas.pdf');
     }
 }
