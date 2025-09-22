@@ -20,7 +20,7 @@ class PerifericosController extends Controller
     {
         try {
             if(Auth::check()){
-                $perifericos = Perifericos::with('estatus','productos')->get();
+                $perifericos = Perifericos::with('estatus','descripciones.producto')->get();
                 if($perifericos->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un perifericos.", 404);
@@ -45,9 +45,10 @@ class PerifericosController extends Controller
                     'cantidad_existente' => 'required|integer|min:0',
                     'entrada' => 'nullable|integer|min:0',
                     'salida' => 'nullable|integer|min:0',
-                    'descripcion' => 'nullable|string',
+                    'observacion' => 'nullable|string',
                     'estatus_id' => 'required|exists:estatus,id',
-                    'producto_id' => 'required|array|exists:productos,id',
+                    //'producto_id' => 'required|array|exists:productos,id',
+                    'descripcion_id'=>'required|array|exists:descripcion,id',
                 ], [
                     'cantidad_existente.required' => 'La cantidad existente es obligatoria',
                     'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
@@ -58,24 +59,28 @@ class PerifericosController extends Controller
                     'salida.required' => 'El campo salida es obligatorio',
                     'salida.integer' => 'La salida debe ser un número entero',
                     'salida.min' => 'La salida no puede ser negativa',
-                    'descripcion.string' => 'La descripción debe ser una cadena de texto.',
-                    'descripcion.max' => 'La descripción no puede exceder 500 caracteres.',
+                    'observacion.string' => 'La observacion debe ser una cadena de texto.',
                     'estatus_id.required' => 'El campo estatus es obligatorio.',
                     'estatus_id.exists' => 'El estatus seleccionado no es válido.',
-                    'producto_id.exists' => 'El producto especificado no existe',
-                    'producto_id.required' => 'El campo producto_id es obligatorio.',
-                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                    //'producto_id.exists' => 'El producto especificado no existe',
+                    //'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                    'descripcion_id.exists' => 'La descripción seleccionada no existe',
+                    'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
                 ]);
 
                 $perifericos = Perifericos::create([
                     'cantidad_existente'=>$request->cantidad_existente,
                     'entrada'=>$request->entrada,
                     'salida'=>$request->salida,
-                    'descripcion'=>$request->descripcion,
+                    'observacion'=>$request->observacion,
                     'estatus_id'=>$request->estatus_id,
-                ])->load(['estatus','productos']);
-                if($request->filled('producto_id')){
+                ])->load(['estatus','descripciones.producto']);
+                /* if($request->filled('producto_id')){
                     $perifericos->productos()->sync($request->producto_id);
+                } */
+                if($request->filled('descripcion_id')){
+                    $inventario->descripciones()->sync($request->descripcion_id);
                 }
                 if(is_null($perifericos)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -101,7 +106,7 @@ class PerifericosController extends Controller
     {
         try {
             if(Auth::check()){
-                $perifericos = Perifericos::with('estatus','productos')->find($id);
+                $perifericos = Perifericos::with('estatus','descripciones.producto')->find($id);
                 if(is_null($perifericos)){
                     Log::channel('sistema')->debug('No se ha logrado mostrar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado mostrar un perifericos.", 404);
@@ -124,11 +129,12 @@ class PerifericosController extends Controller
             if(Auth::check()){
                 $request->validate([
                     'cantidad_existente' => 'required|integer|min:0',
-                    'entrada' => 'required|integer|min:0',
-                    'salida' => 'required|integer|min:0',
-                    'descripcion' => 'nullable|string',
+                    'entrada' => 'nullable|integer|min:0',
+                    'salida' => 'nullable|integer|min:0',
+                    'observacion' => 'nullable|string',
                     'estatus_id' => 'required|exists:estatus,id',
-                    'producto_id' => 'required|array|exists:productos,id',
+                    //'producto_id' => 'required|array|exists:productos,id',
+                    'descripcion_id'=>'required|array|exists:descripcion,id',
                 ], [
                     'cantidad_existente.required' => 'La cantidad existente es obligatoria',
                     'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
@@ -139,16 +145,17 @@ class PerifericosController extends Controller
                     'salida.required' => 'El campo salida es obligatorio',
                     'salida.integer' => 'La salida debe ser un número entero',
                     'salida.min' => 'La salida no puede ser negativa',
-                    'descripcion.string' => 'La descripción debe ser una cadena de texto.',
-                    'descripcion.max' => 'La descripción no puede exceder 500 caracteres.',
+                    'observacion.string' => 'La observacion debe ser una cadena de texto.',
                     'estatus_id.required' => 'El campo estatus es obligatorio.',
                     'estatus_id.exists' => 'El estatus seleccionado no es válido.',
-                    'producto_id.exists' => 'El producto especificado no existe',
-                    'producto_id.required' => 'El campo producto_id es obligatorio.',
-                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                    //'producto_id.exists' => 'El producto especificado no existe',
+                    //'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                    'descripcion_id.exists' => 'La descripción seleccionada no existe',
+                    'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
                 ]);
 
-                $perifericos = Perifericos::with('estatus','productos')->find($id);
+                $perifericos = Perifericos::with('estatus','descripciones.producto')->find($id);
                 if(is_null($perifericos)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado actualizar un perifericos.", 404);
@@ -158,11 +165,14 @@ class PerifericosController extends Controller
                     'cantidad_existente'=>$request->cantidad_existente,
                     'entrada'=>$request->entrada,
                     'salida'=>$request->salida,
-                    'descripcion'=>$request->descripcion,
+                    'observacion'=>$request->observacion,
                     'estatus_id'=>$request->estatus_id,
                 ]);
-                if($request->filled('producto_id')){
+                /* if($request->filled('producto_id')){
                     $perifericos->productos()->sync($request->producto_id);
+                } */
+                if($request->filled('descripcion_id')){
+                    $inventario->descripciones()->sync($request->descripcion_id);
                 }
                 Log::channel('usuario')->info('Se actualizó correctamente.'.$perifericos,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);
@@ -183,7 +193,7 @@ class PerifericosController extends Controller
     {
         try {
             if(Auth::check()){
-                $perifericos = Perifericos::with('estatus','productos')->find($id);
+                $perifericos = Perifericos::with('estatus','descripciones.producto')->find($id);
                 if(is_null($perifericos)){
                     Log::channel('sistema')->debug('No se ha logrado eliminar perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado eliminar perifericos.", 404);
@@ -207,10 +217,10 @@ class PerifericosController extends Controller
     public function exportar(?string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Perifericos::with('estatus','productos')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Perifericos::with('estatus','descripciones.producto')->where('id','=',$id)->get()->makeHidden(['id']));
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Perifericos::with('estatus','productos')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Perifericos::with('estatus','descripciones.producto')->get()->makeHidden(['id']));
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -278,7 +288,7 @@ class PerifericosController extends Controller
                 'title' => Auth::user()?->rol->nombre ?? '',
                 'subtitle' => $docs ?? null,
                 'date' => date('d/m/Y'),
-                'perifericos' => Perifericos::with('estatus', 'productos')->get(),
+                'perifericos' => Perifericos::with('estatus','descripciones.producto')->get(),
                 'usuario' => \App\Models\Usuarios::find($id)?? '',
                 //'usuario' => \App\Models\Usuarios::find(Auth::id())?? '',
             ];

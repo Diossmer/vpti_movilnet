@@ -47,6 +47,9 @@ class ProductosImport implements ToCollection, WithHeadingRow, WithBatchInserts,
                         'estatus_id'=>\App\Models\Estatus::where('nombre',trim($row["estatus"]))->first()?->id ?? null,
                     ]
                 );
+                \App\Models\Inventario\Descripcion::where('producto_id', $producto->id)->update(['producto_id' => null]);
+                \App\Models\Inventario\Descripcion::whereIn('marca', array_map('Str::lower', array_map('trim', explode(',', $row['descripciones']))))
+                ->update(['producto_id' => $producto->id]);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {

@@ -4,7 +4,7 @@ namespace App\Models\Inventario;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+//use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Productos extends Model
@@ -29,7 +29,7 @@ class Productos extends Model
         return $this->hasMany(Descripcion::class,'producto_id');
     }
 
-    public function inventarios(): BelongsToMany
+   /*  public function inventarios(): BelongsToMany
     {
         return $this->belongsToMany(\App\Models\Inventario\Inventarios::class,'inventarios_productos','producto_id','inventario_id')->withTimestamps();
     }
@@ -52,7 +52,7 @@ class Productos extends Model
     public function ubicaciones(): BelongsToMany
     {
         return $this->belongsToMany(\App\Models\Inventario\Ubicacion::class,'ubicacion_productos','producto_id','ubicacion_id')->withTimestamps();
-    }
+    } */
 
     //administrativo
     public function usuario(): BelongsTo

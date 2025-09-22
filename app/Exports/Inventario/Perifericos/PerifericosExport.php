@@ -33,11 +33,14 @@ class PerifericosExport implements FromCollection, ShouldAutoSize, WithHeadings,
             'cantidad_existente'=>$request->cantidad_existente??0,
             'entrada'=>$request->entrada??0,
             'salida'=>$request->salida??0,
-            'descripcion'=>$request->descripcion??"Sin data",
+            'observacion'=>$request->observacion??null,
             'estatus_id'=>$request->estatus->nombre??null,
-            'productos'=>$request->productos->map(function($producto){
+            /* 'productos'=>$request->productos->map(function($producto){
                 return $producto?->nombre;
-            })->implode(',') ?? null,
+            })->implode(',') ?? null, */
+            'descripcion_id'=>$request->descripciones->map(function($descripcion){
+                return $descripcion?->marca. ' ' .$descripcion?->producto?->nombre;
+            })->implode(',')??null,
         ];
     }
 

@@ -30,19 +30,28 @@ class DescripcionesExport implements FromCollection, ShouldAutoSize, WithHeading
     public function map($request): array
     {
         return [
-            'codigo'=>$request->codigo??"Sin data",
+            'codigo'=>$request->codigo??null,
             'modelo'=>$request->modelo,
-            'dispositivo'=>$request->dispositivo??"Sin data",
-            'serial'=>$request->serial??"Sin data",
-            'marca'=>$request->marca??"Sin data",
-            'observacion'=>$request->observacion??"Sin data",
-            'codigo_inv'=>$request->codigo_inv??"Sin data",
-            'producto_id'=>$request->producto->nombre??null,
+            'dispositivo'=>$request->dispositivo??null,
+            'serial'=>$request->serial??null,
+            'marca'=>$request->marca??null,
+            'observacion'=>$request->observacion??null,
+            'codigo_inv'=>$request->codigo_inv??null,
+            'producto'=>$request->producto->nombre??null,
             'asignaciones'=>$request->asignaciones->map(function($asignacion){
                 return $asignacion?->destino;
             })->implode(',') ?? null,
             'evaluaciones'=>$request->evaluaciones->map(function($evaluacion){
                 return \App\Models\Estatus::where('id','=',$evaluacion->estatus_id)->first()?->nombre;
+            })->implode(',') ?? null,
+            'inventarios'=>$request->inventarios->map(function($inventario){
+                return $inventario?->cantidad_existente;
+            })->implode(',') ?? null,
+            'perifericos'=>$request->perifericos->map(function($periferico){
+                return $periferico?->cantidad_existente;
+            })->implode(',') ?? null,
+            'ubicaciones'=>$request->ubicaciones->map(function($ubicacion){
+                return $ubicacion?->origen;
             })->implode(',') ?? null,
         ];
     }

@@ -17,21 +17,19 @@ class Asignacion extends Model
         'comentario',
         'usuario_id',
         'estatus_id',
-        'descripcion_id',
     ];
 
     protected $hidden = [
         'usuario_id',
         'estatus_id',
-        'descripcion_id',
         'created_at',
         'updated_at'
     ];
 
-    public function productos(): BelongsToMany
+    /* public function productos(): BelongsToMany
     {
         return $this->belongsToMany(Productos::class,'asignados_productos','asignar_id','producto_id')->withTimestamps();
-    }
+    } */
 
     public function estatus(): BelongsTo
     {
@@ -43,8 +41,8 @@ class Asignacion extends Model
         return $this->belongsTo(\App\Models\Usuarios::class,'usuario_id');
     }
 
-    public function descripcion(): BelongsTo
+    public function descripciones(): BelongsToMany
     {
-        return $this->belongsTo(Descripcion::class,'descripcion_id');
+        return $this->belongsToMany(Descripcion::class,'asignar_descripcions','asignar_id','descripcion_id')->withTimestamps();
     }
 }

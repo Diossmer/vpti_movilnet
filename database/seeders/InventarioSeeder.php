@@ -30,8 +30,6 @@ class InventarioSeeder extends Seeder
             'marca' => 'N/A',
             'codigo_inv' => 'N/A',
             'observacion' => 'N/A',
-            'producto_id' => 'N/A',
-            'observacion' => 'N/A',
             'producto_id' => 1
         ]);
 
@@ -42,7 +40,6 @@ class InventarioSeeder extends Seeder
             'region'=>'N/A',
             "estado"=>"N/A",
             'capital'=>'N/A',
-            'descripcion_id'=>1,
         ]);
 
         Asignacion::create([
@@ -52,7 +49,6 @@ class InventarioSeeder extends Seeder
             'comentario'=>'N/A',
             'usuario_id'=>1,
             'estatus_id'=>1,
-            'descripcion_id'=>1,
         ]);
 
         Evaluaciones::create([
@@ -62,14 +58,13 @@ class InventarioSeeder extends Seeder
             'mantenimiento'=>'N/A',
             'notas'=>'N/A',
             'estatus_id'=>1,
-            'descripcion_id'=>1,
         ]);
 
         Inventarios::create([
             'cantidad_existente'=>0,
             'entrada'=>0,
             'salida'=>0,
-            'descripcion' => 'N/A',
+            'observacion' => 'N/A',
             'estatus_id'=>1,
         ]);
 
@@ -77,7 +72,7 @@ class InventarioSeeder extends Seeder
             'cantidad_existente'=>0,
             'entrada'=>0,
             'salida'=>0,
-            'descripcion' => 'N/A',
+            'observacion' => 'N/A',
             'estatus_id'=>1,
         ]);
     }

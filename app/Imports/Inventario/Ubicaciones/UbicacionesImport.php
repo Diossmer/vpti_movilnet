@@ -33,25 +33,27 @@ class UbicacionesImport implements ToCollection, WithHeadingRow, WithBatchInsert
     {
         foreach ($rows as $row) {
             try {
-                if (empty($row["descripcion"]) || empty($row["productos"])) {
+                if (empty($row["destino"])) {
                     $this->registrosPendientes++;
-                    throw new \Exception("Fila inválida: descripción o producto están vacíos.");
+                    throw new \Exception("Fila inválida: destino está vacía.");
                 }
                 $ubicacion = \App\Models\Inventario\Ubicacion::updateOrCreate(
                     [
-                        'descripcion_id' => \App\Models\Inventario\Descripcion::where('modelo','=',Str::lower(trim($row['descripcion'])))->first()?->id 
-                    ],
-                    [
+                        //'descripcion_id' => \App\Models\Inventario\Descripcion::where('modelo','=',Str::lower(trim($row['descripcion'])))->first()?->id 
                         'origen'=>Str::lower(trim($row['origen'])) ?? null,
                         'destino'=>Str::lower(trim($row['destino'])) ?? null,
                         'piso'=>Str::lower(trim($row['piso'])) ?? null,
                         'region'=>Str::lower(trim($row['region'])) ?? null,
                         'estado'=>Str::lower(trim($row['estado'])) ?? null,
+                    ],
+                    [
                         'capital'=>Str::lower(trim($row['capital'])) ?? null,
                     ]
                 );
-                $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
-                $ubicacion->productos()->sync($productosID);
+                /* $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $ubicacion->productos()->sync($productosID); */
+                $descripcionID = \App\Models\Inventario\Descripcion::whereIn('marca',array_map('Str::lower', array_map('trim', explode(',', $row['descripciones']))))->get()->pluck('id')->toArray();
+                $ubicacion->descripciones()->sync($descripcionID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {

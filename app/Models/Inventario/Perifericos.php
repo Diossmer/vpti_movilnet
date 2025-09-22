@@ -14,7 +14,7 @@ class Perifericos extends Model
         'cantidad_existente',
         'entrada',
         'salida',
-        'descripcion',
+        'observacion',
         'estatus_id'
     ];
 
@@ -29,8 +29,13 @@ class Perifericos extends Model
         return $this->belongsTo(\App\Models\Estatus::class,'estatus_id');
     }
 
-    public function productos(): BelongsToMany
+    /* public function productos(): BelongsToMany
     {
         return $this->belongsToMany(\App\Models\Inventario\Productos::class,'perifericos_productos','periferico_id','producto_id')->withTimestamps();
+    } */
+
+    public function descripciones(): BelongsToMany
+    {
+        return $this->belongsToMany(Descripcion::class,'periferico_descripcions','periferico_id','descripcion_id')->withTimestamps();
     }
 }

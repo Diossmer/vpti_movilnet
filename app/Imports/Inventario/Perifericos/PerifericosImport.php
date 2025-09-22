@@ -33,9 +33,9 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
     {
         foreach ($rows as $row) {
             try {
-                if (empty($row["cantidad_existente"]) || empty($row['productos'])) {
+                if (empty($row["cantidad_existente"]) || empty($row['descripciones'])) {
                     $this->registrosPendientes++;
-                    throw new \Exception("Fila inválida: cantidad_existente o productos están vacíos.");
+                    throw new \Exception("Fila inválida: cantidad_existente o descripciones están vacíos.");
                 }
                 $perifericos = \App\Models\Inventario\Perifericos::updateOrCreate(
                     [
@@ -44,12 +44,35 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
                         'salida' => $row["salida"] ?? 0,
                     ],
                     [
-                        'descripcion' => Str::lower(trim($row["descripcion"])) ?? null,
+                        'observacion' => Str::lower(trim($row["observacion"])) ?? null,
                         'estatus_id' => \App\Models\Estatus::where('nombre','=',$row['estatus'])->first()->id ?? null,
                     ]
                 );
-                $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
-                $perifericos->productos()->sync($productosID);
+                /* $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $perifericos->productos()->sync($productosID); */
+                $descripcionID = [];
+                $descripciones = array_map('trim', explode(',', $row['descripciones']));
+
+                foreach ($descripciones as $descripcion_string) {
+                    // Ejemplo de cómo manejar "n/a N/A" o strings con espacios
+                    $parts = explode(' ', $descripcion_string);
+                    $marca = Str::lower($parts[0]);
+                    unset($parts[0]);
+                    $producto_nombre = Str::lower(implode(' ', $parts));
+
+                    // Busca la descripción usando la marca y el nombre del producto
+                    $descripcion = \App\Models\Inventario\Descripcion::where('marca', $marca)
+                        ->whereHas('producto', function($query) use ($producto_nombre) {
+                            $query->where('nombre', $producto_nombre);
+                        })
+                        ->first();
+
+                    if ($descripcion) {
+                        $descripcionID[] = $descripcion->id;
+                    }
+                }
+                // Ahora puedes usar el array de IDs
+                $perifericos->descripciones()->sync($descripcionID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
@@ -85,7 +108,7 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
     {
         return [
             '*.cantidad_existente' => ['required','unique:perifericos,cantidad_existente'],
-            '*.descripcion' => 'nullable|string|max:500',
+            '*.observacion' => 'nullable|string|max:500',
         ];
     }
 
@@ -93,7 +116,7 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
     {
         return [
             '*.cantidad_existente.required' => 'El campo :attribute es obligatorio.',
-            '*.descripcion.string' => 'El campo descripción debe ser string.',
+            '*.observacion.string' => 'El campo observacion debe ser string.',
         ];
     }
 

@@ -17,28 +17,26 @@ class Evaluaciones extends Model
         'mantenimiento',
         'notas',
         'estatus_id',
-        'descripcion_id',
     ];
 
     protected $hidden = [
         'estatus_id',
-        'descripcion_id',
         'created_at',
         'updated_at'
     ];
 
-    public function productos(): BelongsToMany
+    /* public function productos(): BelongsToMany
     {
         return $this->belongsToMany(Productos::class,'evaluacion_productos','evaluacion_id','producto_id')->withTimestamps();
-    }
+    } */
 
     public function estatus(): BelongsTo
     {
         return $this->belongsTo(\App\Models\Estatus::class,'estatus_id');
     }
 
-    public function descripcion(): BelongsTo
+    public function descripciones(): BelongsToMany
     {
-        return $this->belongsTo(\App\Models\Inventario\Descripcion::class,'descripcion_id');
+        return $this->belongsToMany(Descripcion::class,'evaluacion_descripcions','evaluacion_id','descripcion_id')->withTimestamps();
     }
 }

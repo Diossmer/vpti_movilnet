@@ -80,14 +80,14 @@
       }
       .text {
         text-align: start;
-        margin-top: 20px;
+        margin-top: 10px;
         margin-bottom: 30px;
         text-indent: 25px;
         line-height: 1.5;
       }
       /* Nuevos estilos para firmas y sellos con float */
       .signatures-section {
-        margin-top: 100px;
+        margin-top: 10px;
         clear: both; /* Evita que el contenido posterior se mueva al lado de los floats */
       }
       .signature-block {
@@ -153,7 +153,6 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>Productos</th>
               <th>Cantidad Existente</th>
               <th>Entrada</th>
               <th>Salida</th>
@@ -164,15 +163,6 @@
             @foreach($inventarios as $inventario)
               <tr>
                 <td>{{ $inventario->id }}</td>
-                <td>
-                  @if($inventario->productos->isNotEmpty())
-                    @foreach($inventario->productos as $producto)
-                      {{ $producto->nombre?? '______________________' }}
-                    @endforeach
-                  @else
-                    N/A
-                  @endif
-                </td>
                 <td>{{ $inventario->cantidad_existente ?? '' }}</td>
                 <td>{{ $inventario->entrada ?? '' }}</td>
                 <td>{{ $inventario->salida ?? '' }}</td>
@@ -180,7 +170,18 @@
               </tr>
               <tr class="description-row">
                 <td colspan="6" class="description-cell">
-                  <strong>Descripción:</strong> {{ $inventario->descripcion?? '' }}
+                  <strong>Observación:</strong> {{ $inventario->observacion?? '' }}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  @if($inventario->descripciones->isNotEmpty())
+                    @foreach($inventario->descripciones as $descripcion)
+                     {{ " ".$descripcion->producto->nombre."/"?? '' }}
+                    @endforeach
+                  @else
+                    N/A
+                  @endif
                 </td>
               </tr>
             @endforeach

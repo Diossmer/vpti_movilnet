@@ -20,7 +20,7 @@ class AsignacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $asignacion = Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->get();
+                $asignacion = Asignacion::with('estatus', 'usuario', 'descripciones.producto')->get();
                 if($asignacion->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un asignacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un asignacion.", 404);
@@ -48,18 +48,19 @@ class AsignacionController extends Controller
                     'destino' => 'required|string',
                     'usuario_id' => 'required|integer|exists:usuarios,id',
                     'estatus_id' => 'required|integer|exists:estatus,id',
-                    'producto_id' => 'required|array|exists:productos,id',
-                    'descripcion_id'=>'required|exists:descripcion,id',
+                    //'producto_id' => 'required|array|exists:productos,id',
+                    'descripcion_id'=>'required|array|exists:descripcion,id',
                 ], [
                     'fecha_asignar.required' => 'La fecha de asignación es obligatoria',
                     'destino.string' => 'el destino tiene que ser un texto',
                     'comentario.max' => 'El comentario no debe exceder 500 caracteres',
                     'estatus_id.exists' => 'Estado no válido',
                     'descripcion_id.exists' => 'La descripcion especificado no existe',
+                    'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
                     'usuario_id.exists' => 'El usuario especificado no existe',
-                    'producto_id.exists' => 'El producto especificado no existe',
-                    'producto_id.required' => 'El campo producto_id es obligatorio.',
-                    'producto_id.array' => 'El campo producto_id debe ser un número entero.',
+                    //'producto_id.exists' => 'El producto especificado no existe',
+                    //'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    //'producto_id.array' => 'El campo producto_id debe ser un número entero.',
                 ]);
                 $asignacion = Asignacion::create([
                     'fecha_asignar'=>$request->fecha_asignar,
@@ -68,10 +69,12 @@ class AsignacionController extends Controller
                     'destino'=>$request->destino,
                     'estatus_id'=>$request->estatus_id,
                     'usuario_id'=>(Auth::id()===1)?$request->usuario_id:Auth::id(),
-                    'descripcion_id'=>$request->descripcion_id,
-                ])->load(['usuario', 'estatus', 'descripcion', 'productos']);
-                if($request->filled('producto_id')){
+                ])->load(['estatus', 'usuario', 'descripciones.producto']);
+                /* if($request->filled('producto_id')){
                     $asignacion->productos()->sync($request->producto_id);
+                } */
+                if($request->filled('descripcion_id')){
+                    $asignacion->descripciones()->sync($request->descripcion_id);
                 }
                 if(is_null($asignacion)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un asignacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -97,7 +100,7 @@ class AsignacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $asignacion = Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->find($id);
+                $asignacion = Asignacion::with('estatus', 'usuario', 'descripciones.producto')->find($id);
                 if(is_null($asignacion)){
                     Log::channel('sistema')->debug('No se ha logrado mostrar un asignacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado mostrar un asignacion.", 404);
@@ -125,20 +128,21 @@ class AsignacionController extends Controller
                     'destino' => 'required|string',
                     'usuario_id' => 'required|integer|exists:usuarios,id',
                     'estatus_id' => 'required|integer|exists:estatus,id',
-                    'producto_id' => 'required|array|exists:productos,id',
-                    'descripcion_id'=>'required|exists:descripcion,id',
+                    //'producto_id' => 'required|array|exists:productos,id',
+                    'descripcion_id'=>'required|array|exists:descripcion,id',
                 ], [
                     'fecha_asignar.required' => 'La fecha de asignación es obligatoria',
                     'destino.string' => 'el destino tiene que ser un texto',
                     'comentario.max' => 'El comentario no debe exceder 500 caracteres',
                     'estatus_id.exists' => 'Estado no válido',
                     'descripcion_id.exists' => 'La descripcion especificado no existe',
+                    'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
                     'usuario_id.exists' => 'El usuario especificado no existe',
-                    'producto_id.exists' => 'El producto especificado no existe',
-                    'producto_id.required' => 'El campo producto_id es obligatorio.',
-                    'producto_id.array' => 'El campo producto_id debe ser un número entero.',
+                    //'producto_id.exists' => 'El producto especificado no existe',
+                    //'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    //'producto_id.array' => 'El campo producto_id debe ser un número entero.',
                 ]);
-                $asignacion = Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->find($id);
+                $asignacion = Asignacion::with('estatus', 'usuario', 'descripciones.producto')->find($id);
                 if(is_null($asignacion)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un asignacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado actualizar un asignacion.", 404);
@@ -151,10 +155,12 @@ class AsignacionController extends Controller
                     'destino'=>$request->destino,
                     'estatus_id'=>$request->estatus_id,
                     'usuario_id'=>(Auth::id()===1)?$request->usuario_id:Auth::id(),
-                    'descripcion_id'=>$request->descripcion_id,
                 ]);
-                if($request->filled('producto_id')){
+                /* if($request->filled('producto_id')){
                     $asignacion->productos()->sync($request->producto_id);
+                } */
+                if($request->filled('descripcion_id')){
+                    $asignacion->descripciones()->sync($request->descripcion_id);
                 }
                 Log::channel('usuario')->info('Se actualizó correctamente.'.$asignacion,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);
@@ -175,7 +181,7 @@ class AsignacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $asignacion = Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->find($id);
+                $asignacion = Asignacion::with('estatus', 'usuario', 'descripciones.producto')->find($id);
                 if(is_null($asignacion)){
                     Log::channel('sistema')->debug('No se ha logrado eliminar asignacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado eliminar asignacion.", 404);
@@ -199,10 +205,10 @@ class AsignacionController extends Controller
     public function exportar(?string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Asignacion::with('estatus', 'usuario', 'descripciones.producto')->where('id','=',$id)->get()->makeHidden(['id']));
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Asignacion::with('estatus', 'usuario', 'descripciones.producto')->get()->makeHidden(['id']));
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -263,7 +269,7 @@ class AsignacionController extends Controller
                 'title' => Auth::user()?->rol->nombre ?? '',
                 'subtitle' => $docs ?? null,
                 'date' => date('d/m/Y'),
-                'asignaciones' => Asignacion::with('usuario', 'estatus', 'descripcion', 'productos')->get(),
+                'asignaciones' => Asignacion::with('estatus', 'usuario', 'descripciones.producto')->get(),
                 'usuario' => \App\Models\Usuarios::find($id)?? '',
                 //'usuario' => \App\Models\Usuarios::find(Auth::id())?? '',
             ];

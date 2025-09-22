@@ -14,7 +14,7 @@ class Inventarios extends Model
         'cantidad_existente',
         'entrada',
         'salida',
-        'descripcion',
+        'observacion',
         'estatus_id',
     ];
 
@@ -29,8 +29,13 @@ class Inventarios extends Model
         return $this->belongsTo(\App\Models\Estatus::class,'estatus_id');
     }
 
-    public function productos(): BelongsToMany
+    /* public function productos(): BelongsToMany
     {
         return $this->belongsToMany(Productos::class,'inventarios_productos','inventario_id','producto_id')->withTimestamps();
+    } */
+
+    public function descripciones(): BelongsToMany
+    {
+        return $this->belongsToMany(Descripcion::class,'inventario_descripcions','inventario_id','descripcion_id')->withTimestamps();
     }
 }

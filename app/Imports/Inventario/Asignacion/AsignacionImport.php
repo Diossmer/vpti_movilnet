@@ -35,27 +35,29 @@ class AsignacionImport implements ToCollection, WithHeadingRow, WithBatchInserts
     {
         foreach ($rows as $row) {
             try {
-                if (empty($row["productos"])) {
+                if (empty($row["destino"])) {
                     $this->registrosPendientes++;
-                    throw new \Exception("Fila inválida: está vacío.");
+                    throw new \Exception("Fila inválida: destino está vacío.");
                 }
                 $asignar = \App\Models\Inventario\Asignacion::updateOrCreate(
                     [
                         // Clave única compuesta (debe coincidir con uniqueBy)
                         'estatus_id'=> \App\Models\Estatus::where('nombre','=',Str::lower(trim($row['estatus'])))->first()?->id ?? null,
-                        'descripcion_id'=>\App\Models\Inventario\Descripcion::where('modelo','=',Str::lower(trim($row['descripcion'])))->first()?->id ?? null,
+                        //'descripcion_id'=>\App\Models\Inventario\Descripcion::where('modelo','=',Str::lower(trim($row['descripcion'])))->first()?->id ?? null,
                         'usuario_id'=> (Auth::id() === 1)?\App\Models\Usuarios::where('usuario',trim($row["usuario"]))->first()?->id:Auth::id(),
+                        'destino' => Str::lower(trim($row['destino'])) ?? null,
                     ],
                     [
                         // Campos actualizables
                         'fecha_asignar' => $row['fecha_asignar'] ?? null,
                         'fecha_devolucion' => $row['fecha_devolucion'] ?? null,
-                        'destino' => Str::lower(trim($row['destino'])) ?? null,
                         'comentario' => Str::lower(trim($row['comentario'])) ?? null,
                     ]
                 );
-                $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
-                $asignar->productos()->sync($productosID);
+                /* $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $asignar->productos()->sync($productosID); */
+                $descripcionID = \App\Models\Inventario\Descripcion::whereIn('marca',array_map('Str::lower', array_map('trim', explode(',', $row['descripciones']))))->get()->pluck('id')->toArray();
+                $asignar->descripciones()->sync($descripcionID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
@@ -83,7 +85,7 @@ class AsignacionImport implements ToCollection, WithHeadingRow, WithBatchInserts
 
     public function uniqueBy()
     {
-        return ['estatus_id','descripcion_id','usuario_id','producto_id'];
+        return ['estatus_id','descripcion_id','usuario_id'];
     }
 
     public function rules(): array

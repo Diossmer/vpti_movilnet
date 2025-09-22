@@ -166,9 +166,9 @@
               <tr>
                 <td>{{ $evaluacion->id }}</td>
                 <td>
-                  @if($evaluacion->productos->isNotEmpty())
-                    @foreach($evaluacion->productos as $producto)
-                      {{ $producto->nombre?? '______________________' }}
+                  @if($evaluacion->descripciones->isNotEmpty())
+                    @foreach($evaluacion->descripciones as $descripcion)
+                     {{ " ".$descripcion->producto->nombre."/"?? '' }}
                     @endforeach
                   @else
                     N/A

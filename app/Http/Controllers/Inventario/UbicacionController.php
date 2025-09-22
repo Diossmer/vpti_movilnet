@@ -21,7 +21,7 @@ class UbicacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $ubicacion = Ubicacion::with('descripcion','productos')->get();
+                $ubicacion = Ubicacion::with('descripciones.producto')->get();
                 if($ubicacion->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un ubicacion.", 404);
@@ -49,13 +49,16 @@ class UbicacionController extends Controller
                     'region' => 'nullable|string|max:255',
                     'capital' => 'nullable|string|max:255',
                     'descripcion_id' => 'required|integer|exists:descripcion,id',
-                    'producto_id' => 'required|array|exists:productos,id',
+                    //'producto_id' => 'required|array|exists:productos,id',
+                    'descripcion_id'=>'required|array|exists:descripcion,id',
                 ], [
                     'origen.different' => 'Origen y destino deben ser diferentes',
                     'region' => 'Región no válida. Opciones: Norte, Sur, Este, Oeste, Centro',
-                    'producto_id.exists' => 'El producto especificado no existe',
-                    'producto_id.required' => 'El campo producto_id es obligatorio.',
-                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                    //'producto_id.exists' => 'El producto especificado no existe',
+                    //'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                    'descripcion_id.exists' => 'La descripción seleccionada no existe',
+                    'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
                 ]);
 
                 $ubicacion = Ubicacion::create([
@@ -65,10 +68,12 @@ class UbicacionController extends Controller
                     'region'=>$request->region,
                     'estado'=>$request->estado,
                     'capital'=>$request->capital,
-                    'descripcion_id'=>$request->descripcion_id,
-                ])->load(['descripcion','productos']);
-                if($request->filled('producto_id')){
+                ])->load(['descripciones.producto']);
+                /* if($request->filled('producto_id')){
                     $ubicacion->productos()->sync($request->producto_id);
+                } */
+                if($request->filled('descripcion_id')){
+                    $ubicacion->descripciones()->sync($request->descripcion_id);
                 }
                 if(is_null($ubicacion)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -94,7 +99,7 @@ class UbicacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $ubicacion = Ubicacion::with('descripcion','productos')->find($id);
+                $ubicacion = Ubicacion::with('descripciones.producto')->find($id);
                 if(is_null($ubicacion)){
                     Log::channel('sistema')->debug('No se ha logrado mostrar un ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado mostrar un ubicacion.", 404);
@@ -122,16 +127,19 @@ class UbicacionController extends Controller
                     'region' => 'nullable|string|max:255',
                     'capital' => 'nullable|string|max:255',
                     'descripcion_id' => 'required|integer|exists:descripcion,id',
-                    'producto_id' => 'required|array|exists:productos,id',
+                    //'producto_id' => 'required|array|exists:productos,id',
+                    'descripcion_id'=>'required|array|exists:descripcion,id',
                 ], [
                     'origen.different' => 'Origen y destino deben ser diferentes',
                     'region' => 'Región no válida. Opciones: Norte, Sur, Este, Oeste, Centro',
-                    'producto_id.exists' => 'El producto especificado no existe',
-                    'producto_id.required' => 'El campo producto_id es obligatorio.',
-                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                    //'producto_id.exists' => 'El producto especificado no existe',
+                    //'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                    'descripcion_id.exists' => 'La descripción seleccionada no existe',
+                    'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
                 ]);
 
-                $ubicacion = Ubicacion::with('descripcion','productos')->find($id);
+                $ubicacion = Ubicacion::with('descripciones.producto')->find($id);
                 if(is_null($ubicacion)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado actualizar un ubicacion.", 404);
@@ -144,10 +152,12 @@ class UbicacionController extends Controller
                     'region'=>$request->region,
                     'estado'=>$request->estado,
                     'capital'=>$request->capital,
-                    'descripcion_id'=>$request->descripcion_id,
                 ]);
-                if($request->filled('producto_id')){
+                /* if($request->filled('producto_id')){
                     $ubicacion->productos()->sync($request->producto_id);
+                } */
+                if($request->filled('descripcion_id')){
+                    $ubicacion->descripciones()->sync($request->descripcion_id);
                 }
                 Log::channel('usuario')->info('Se actualizó correctamente.'.$ubicacion,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);
@@ -168,7 +178,7 @@ class UbicacionController extends Controller
     {
         try {
             if(Auth::check()){
-                $ubicacion = Ubicacion::with('descripcion','productos')->find($id);
+                $ubicacion = Ubicacion::with('descripciones.producto')->find($id);
                 if(is_null($ubicacion)){
                     Log::channel('sistema')->debug('No se ha logrado eliminar ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado eliminar ubicacion.", 404);
@@ -192,10 +202,10 @@ class UbicacionController extends Controller
     public function exportar(?string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Ubicacion::with('descripcion','productos')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Ubicacion::with('descripciones.producto')->where('id','=',$id)->get()->makeHidden(['id']));
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Ubicacion::with('descripcion','productos')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Ubicacion::with('descripciones.producto')->get()->makeHidden(['id']));
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -263,7 +273,7 @@ class UbicacionController extends Controller
                 'title' => Auth::user()?->rol->nombre ?? '',
                 'subtitle' => $docs ?? null,
                 'date' => date('d/m/Y'),
-                'ubicaciones' => Ubicacion::with('descripcion','productos')->get(),
+                'ubicaciones' => Ubicacion::with('descripciones.producto')->get(),
                 'usuario' => \App\Models\Usuarios::find($id)?? '',
                 //'usuario' => \App\Models\Usuarios::find(Auth::id())?? '',
             ];

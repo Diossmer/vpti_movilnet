@@ -20,7 +20,7 @@ class EvaluacionesController extends Controller
     {
         try {
             if(Auth::check()){
-                $evaluacion = Evaluaciones::with('estatus','descripcion','productos')->get();
+                $evaluacion = Evaluaciones::with('estatus','descripciones.producto')->get();
                 if($evaluacion->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un evaluacion.", 404);
@@ -49,15 +49,16 @@ class EvaluacionesController extends Controller
                     'mantenimiento' => 'nullable|string|max:500',
                     'notas' => 'nullable|string|max:1000',
                     'estatus_id' => 'required|integer|exists:estatus,id',
-                    'descripcion_id' => 'required|integer|exists:descripcion,id',
-                    'producto_id' => 'required|array|exists:productos,id',
+                    'descripcion_id'=>'required|array|exists:descripcion,id',
+                    //'producto_id' => 'required|array|exists:productos,id',
                 ],
                 [
-                    'producto_id.exists' => 'El producto especificado no existe',
-                    'producto_id.required' => 'El campo producto_id es obligatorio.',
-                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                    //'producto_id.exists' => 'El producto especificado no existe',
+                    //'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                     'estatus_id.exists' => 'El estatus seleccionado no es válido',
-                    'descripcion_id.exists' => 'La descripción seleccionada no existe'
+                    'descripcion_id.exists' => 'La descripción seleccionada no existe',
+                    'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
                 ]);
 
                 $evaluacion = Evaluaciones::create([
@@ -68,10 +69,12 @@ class EvaluacionesController extends Controller
                     'mantenimiento'=>$request->mantenimiento,
                     'notas'=>$request->notas,
                     'estatus_id'=>$request->estatus_id,
-                    'descripcion_id'=>$request->descripcion_id,
-                ])->load(['estatus','descripcion','productos']);
-                if($request->filled('producto_id')){
+                ])->load(['estatus','descripciones.producto']);
+                /* if($request->filled('producto_id')){
                     $evaluacion->productos()->sync($request->producto_id);
+                } */
+                if($request->filled('descripcion_id')){
+                    $evaluacion->descripciones()->sync($request->descripcion_id);
                 }
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -97,7 +100,7 @@ class EvaluacionesController extends Controller
     {
         try {
             if(Auth::check()){
-                $evaluacion = Evaluaciones::with('estatus','descripcion','productos')->find($id);
+                $evaluacion = Evaluaciones::with('estatus','descripciones.producto')->find($id);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado mostrar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado mostrar un evaluacion.", 404);
@@ -126,18 +129,19 @@ class EvaluacionesController extends Controller
                     'mantenimiento' => 'nullable|string|max:500',
                     'notas' => 'nullable|string|max:1000',
                     'estatus_id' => 'required|integer|exists:estatus,id',
-                    'descripcion_id' => 'required|integer|exists:descripcion,id',
-                    'producto_id' => 'required|array|exists:productos,id',
+                    'descripcion_id'=>'required|array|exists:descripcion,id',
+                    //'producto_id' => 'required|array|exists:productos,id',
                 ],
                 [
-                    'producto_id.exists' => 'El producto especificado no existe',
-                    'producto_id.required' => 'El campo producto_id es obligatorio.',
-                    'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                    //'producto_id.exists' => 'El producto especificado no existe',
+                    //'producto_id.required' => 'El campo producto_id es obligatorio.',
+                    //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                     'estatus_id.exists' => 'El estatus seleccionado no es válido',
-                    'descripcion_id.exists' => 'La descripción seleccionada no existe'
+                    'descripcion_id.exists' => 'La descripción seleccionada no existe',
+                    'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
                 ]);
 
-                $evaluacion = Evaluaciones::with('estatus','descripcion','productos')->find($id);
+                $evaluacion = Evaluaciones::with('estatus','descripciones.producto')->find($id);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado actualizar un evaluacion.", 404);
@@ -152,10 +156,12 @@ class EvaluacionesController extends Controller
                     'mantenimiento'=>$request->mantenimiento,
                     'notas'=>$request->notas,
                     'estatus_id'=>$request->estatus_id,
-                    'descripcion_id'=>$request->descripcion_id,
                 ]);
-                if($request->filled('producto_id')){
+                /* if($request->filled('producto_id')){
                     $evaluacion->productos()->sync($request->producto_id);
+                } */
+                if($request->filled('descripcion_id')){
+                    $evaluacion->descripciones()->sync($request->descripcion_id);
                 }
                 Log::channel('usuario')->info('Se actualizó correctamente.'.$evaluacion,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);
@@ -176,7 +182,7 @@ class EvaluacionesController extends Controller
     {
         try {
             if(Auth::check()){
-                $evaluacion = Evaluaciones::with('estatus','descripcion','productos')->find($id);
+                $evaluacion = Evaluaciones::with('estatus','descripciones.producto')->find($id);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado eliminar evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado eliminar evaluacion.", 404);
@@ -200,10 +206,10 @@ class EvaluacionesController extends Controller
     public function exportar(?string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Evaluaciones::with('estatus','descripcion','productos')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Evaluaciones::with('estatus','descripciones.producto')->where('id','=',$id)->get()->makeHidden(['id']));
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Evaluaciones::with('estatus','descripcion','productos')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Evaluaciones::with('estatus','descripciones.producto')->get()->makeHidden(['id']));
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -264,7 +270,7 @@ class EvaluacionesController extends Controller
                 'title' => Auth::user()?->rol->nombre ?? '',
                 'subtitle' => $docs ?? null,
                 'date' => date('d/m/Y'),
-                'evaluaciones' => Evaluaciones::with('estatus','descripcion','productos')->get(),
+                'evaluaciones' => Evaluaciones::with('estatus','descripciones.producto')->get(),
                 'usuario' => \App\Models\Usuarios::find($id)?? '',
                 //'usuario' => \App\Models\Usuarios::find(Auth::id())?? '',
             ];

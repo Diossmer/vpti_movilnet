@@ -16,22 +16,20 @@ class Ubicacion extends Model
         'piso',
         'region',
         'capital',
-        'descripcion_id'
     ];
 
     protected $hidden = [
-        'descripcion_id',
         'created_at',
         'updated_at'
     ];
 
-    public function productos(): BelongsToMany
+    /* public function productos(): BelongsToMany
     {
         return $this->belongsToMany(Productos::class,'ubicacion_productos','ubicacion_id','producto_id')->withTimestamps();
-    }
+    } */
 
-    public function descripcion(): BelongsTo
+    public function descripciones(): BelongsToMany
     {
-        return $this->belongsTo(Descripcion::class,'descripcion_id');
+        return $this->belongsToMany(Descripcion::class,'ubicacion_descripcions','ubicacion_id','descripcion_id')->withTimestamps();
     }
 }

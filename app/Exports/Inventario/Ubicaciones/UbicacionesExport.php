@@ -30,16 +30,18 @@ class UbicacionesExport implements FromCollection, ShouldAutoSize, WithHeadings,
     public function map($request): array
     {
         return [
-            'origen'=>$request->origen??"Sin data",
-            'destino'=>$request->destino??"Sin data",
+            'origen'=>$request->origen??null,
+            'destino'=>$request->destino??null,
             'piso'=>$request->piso??0,
-            'region'=>$request->region??"Sin data",
-            'estado'=>$request->estado??"Sin data",
-            'capital'=>$request->capital??"Sin data",
-            'descripcion_id'=>$request->descripcion->modelo??null,
-            'producto_id'=>$request->productos->map(function($producto){
+            'region'=>$request->region??null,
+            'estado'=>$request->estado??null,
+            'capital'=>$request->capital??null,
+            /* 'producto_id'=>$request->productos->map(function($producto){
                 return $producto?->nombre;
-            })->implode(',') ?? null,
+            })->implode(',') ?? null, */
+            'descripcion_id'=>$request->descripciones->map(function($descripcion){
+                return $descripcion?->marca;
+            })->implode(',')??null,
         ];
     }
 

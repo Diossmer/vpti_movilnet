@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('inventarios_productos', function (Blueprint $table) {
+        /* Schema::create('inventarios_productos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('inventario_id')->nullable()->constrained('inventarios')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('producto_id')->nullable()->constrained('productos')->onUpdate('cascade')->onDelete('cascade');
@@ -41,6 +41,41 @@ return new class extends Migration
             $table->foreignId('ubicacion_id')->nullable()->constrained('ubicacion')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('producto_id')->nullable()->constrained('productos')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
+        }); */
+
+        Schema::create('asignar_descripcions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('asignar_id')->nullable()->constrained('asignacion')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('descripcion_id')->nullable()->constrained('descripcion')->onUpdate('cascade')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('evaluacion_descripcions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('evaluacion_id')->nullable()->constrained('evaluaciones')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('descripcion_id')->nullable()->constrained('descripcion')->onUpdate('cascade')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('ubicacion_descripcions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('ubicacion_id')->nullable()->constrained('ubicacion')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('descripcion_id')->nullable()->constrained('descripcion')->onUpdate('cascade')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('inventario_descripcions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('inventario_id')->nullable()->constrained('inventarios')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('descripcion_id')->nullable()->constrained('descripcion')->onUpdate('cascade')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('periferico_descripcions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('periferico_id')->nullable()->constrained('perifericos')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('descripcion_id')->nullable()->constrained('descripcion')->onUpdate('cascade')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -52,6 +87,11 @@ return new class extends Migration
         Schema::dropIfExists('asignados_productos');
         Schema::dropIfExists('evaluacion_productos');
         Schema::dropIfExists('ubicacion_productos');
+        Schema::dropIfExists('asignar_descripcions');
+        Schema::dropIfExists('evaluacion_descripcions');
+        Schema::dropIfExists('ubicacion_descripcions');
+        Schema::dropIfExists('inventario_descripcions');
+        Schema::dropIfExists('periferico_descripcions');
         Schema::enableForeignKeyConstraints();
     }
 };

@@ -34,14 +34,14 @@ class EvaluacionesImport implements ToCollection, WithHeadingRow, WithBatchInser
     {
         foreach ($rows as $row) {
             try {
-                if (empty($row["productos"]||$row["descripcion"]||$row["estatus"])) {
+                if ( empty($row["descripciones"]) || empty($row["estatus"])) {
                     $this->registrosPendientes++;
-                    throw new \Exception("Fila inválida: productos está vacío.");
+                    throw new \Exception("Fila inválida: descripciones o estatus están vacíos.");
                 }
                 $evaluacion = \App\Models\Inventario\Evaluaciones::updateOrCreate(
                     [
                         // Clave única compuesta (debe coincidir con uniqueBy)
-                        'descripcion_id'=>\App\Models\Inventario\Descripcion::where('modelo','=',Str::lower(trim($row['descripcion'])))->first()?->id ?? null,
+                        //'descripcion_id'=>\App\Models\Inventario\Descripcion::where('modelo','=',Str::lower(trim($row['descripcion'])))->first()?->id ?? null,
                         'estatus_id'=>\App\Models\Estatus::where('nombre','=',Str::lower(trim($row['estatus'])))->first()?->id ?? null,
                     ],
                     [
@@ -54,12 +54,14 @@ class EvaluacionesImport implements ToCollection, WithHeadingRow, WithBatchInser
                         'notas'=>Str::lower(trim($row['notas']))?? null,
                     ]
                 );
-                $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
-                $evaluacion->productos()->sync($productosID);
+                /* $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
+                $evaluacion->productos()->sync($productosID); */
+                $descripcionID = \App\Models\Inventario\Descripcion::whereIn('marca',array_map('Str::lower', array_map('trim', explode(',', $row['descripciones']))))->get()->pluck('id')->toArray();
+                $evaluacion->descripciones()->sync($descripcionID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
-                    Log::warning("Registro duplicado: {$row['productos']} {$row['descripcion']} {$row['estatus']}");
+                    Log::warning("Registro duplicado: {$row['productos']} {$row['descripciones']} {$row['estatus']}");
                     $this->registrosFallidos++;
                     continue;
                 }
@@ -84,7 +86,7 @@ class EvaluacionesImport implements ToCollection, WithHeadingRow, WithBatchInser
 
     public function uniqueBy()
     {
-        return ['producto_id', 'descripcion_id','estatus_id','mantenimiento'];
+        return ['descripcion_id','estatus_id','mantenimiento'];
     }
 
     public function rules(): array

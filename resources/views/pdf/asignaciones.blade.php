@@ -166,9 +166,9 @@
               <tr>
                 <td>{{ $asignacion->id }}</td>
                 <td>
-                  @if($asignacion->productos->isNotEmpty())
-                    @foreach($asignacion->productos as $producto)
-                      {{ $producto->nombre?? '______________________' }}
+                  @if($asignacion->descripciones->isNotEmpty())
+                    @foreach($asignacion->descripciones as $descripcion)
+                     {{ " ".$descripcion->producto->nombre."/"?? '' }}
                     @endforeach
                   @else
                     N/A

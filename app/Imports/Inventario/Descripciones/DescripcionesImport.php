@@ -40,7 +40,7 @@ class DescripcionesImport implements ToCollection, WithHeadingRow, WithBatchInse
                 $descripcion = \App\Models\Inventario\Descripcion::updateOrCreate(
                     [
                         'observacion' => trim($row["observacion"]),
-                        'producto_id' => trim($row["producto"])
+                        'producto_id' => \App\Models\Inventario\Productos::where('nombre','=',Str::lower(trim($row['producto'])))->first()?->id ?? null,
                     ],
                     [
                         'codigo' => Str::lower(trim($row['codigo'])) ?? null,
@@ -50,13 +50,22 @@ class DescripcionesImport implements ToCollection, WithHeadingRow, WithBatchInse
                         'marca' => Str::lower(trim($row['marca'])) ?? null,
                         'codigo_inv' => Str::lower(trim($row['codigo_inv'])) ?? null,
                         'observacion' => Str::lower(trim($row['observacion'])) ?? null,
-                        'producto_id' => \App\Models\Inventario\Productos::where('nombre','=',Str::lower(trim($row['producto'])))->first()?->id ?? null,
                     ]
                 );
-                $asignacionesId = \App\Models\Inventario\Asignacion::whereIn('destino',array_map('Str::lower', array_map('trim', explode(',', $row['asignaciones']))))->get()->pluck('id')->toArray();
-                $descripcion->asignaciones()->sync($asignacionesId);
-                $evaluacionesId = \App\Models\Inventario\Evaluaciones::whereIn('estatus_id',array_map('Str::lower', array_map('trim', explode(',', $row['evaluaciones']))))->get()->pluck('id')->toArray();
-                $descripcion->evaluaciones()->sync($evaluacionesId);
+                $asignacionesID = \App\Models\Inventario\Asignacion::whereIn('destino',array_map('Str::lower', array_map('trim', explode(',', $row['asignaciones']))))->get()->pluck('id')->toArray();
+                $descripcion->asignaciones()->sync($asignacionesID);
+                
+                $evaluacionesID = \App\Models\Inventario\Evaluaciones::whereIn('estatus_id',array_map('Str::lower', array_map('trim', explode(',', $row['evaluaciones']))))->get()->pluck('id')->toArray();
+                $descripcion->evaluaciones()->sync($evaluacionesID);
+                
+                $inventariosID = \App\Models\Inventario\Inventarios::whereIn('cantidad_existente',array_map('Str::lower', array_map('trim', explode(',', $row['inventarios']))))->get()->pluck('id')->toArray();
+                $descripcion->inventarios()->sync($inventariosID);
+                
+                $perifericosID = \App\Models\Inventario\Perifericos::whereIn('cantidad_existente',array_map('Str::lower', array_map('trim', explode(',', $row['perifericos']))))->get()->pluck('id')->toArray();
+                $descripcion->perifericos()->sync($perifericosID);
+                
+                $ubicacionesID = \App\Models\Inventario\Ubicacion::whereIn('origen',array_map('Str::lower', array_map('trim', explode(',', $row['ubicaciones']))))->get()->pluck('id')->toArray();
+                $descripcion->ubicaciones()->sync($ubicacionesID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {

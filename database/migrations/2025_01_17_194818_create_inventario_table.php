@@ -13,7 +13,7 @@ return new class extends Migration
             $table->integer('cantidad_existente')->nullable();
             $table->integer('entrada')->nullable();
             $table->integer('salida')->nullable();
-            $table->text('descripcion')->nullable();
+            $table->text('observacion')->nullable();
             $table->foreignId('estatus_id')->nullable()->constrained('estatus')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('cantidad_existente')->nullable();
             $table->integer('entrada')->nullable();
             $table->integer('salida')->nullable();
-            $table->text('descripcion')->nullable();
+            $table->text('observacion')->nullable();
             $table->foreignId('estatus_id')->nullable()->constrained('estatus')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
@@ -57,7 +57,6 @@ return new class extends Migration
             $table->string('region')->nullable();
             $table->string('estado')->nullable();
             $table->string('capital')->nullable();
-            $table->foreignId('descripcion_id')->nullable()->constrained('descripcion')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -69,7 +68,6 @@ return new class extends Migration
             $table->string('mantenimiento')->nullable();
             $table->text('notas')->nullable();
             $table->foreignId('estatus_id')->nullable()->constrained('estatus')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('descripcion_id')->nullable()->constrained('descripcion')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -81,7 +79,6 @@ return new class extends Migration
             $table->text('comentario')->nullable();
             $table->foreignId('usuario_id')->nullable()->constrained('usuarios')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('estatus_id')->nullable()->constrained('estatus')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('descripcion_id')->nullable()->constrained('descripcion')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

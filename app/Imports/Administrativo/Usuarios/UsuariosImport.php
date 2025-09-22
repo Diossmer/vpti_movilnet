@@ -62,10 +62,17 @@ class UsuariosImport implements ToCollection, WithHeadingRow, WithBatchInserts, 
                         'rol_id' => \App\Models\Roles::where('nombre','=',$row['rol'])->first()->id ?? null,
                     ]
                 );
-                $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
-                $usuario->productos()->sync($productosID);
-                $asignacionID = \App\Models\Inventario\Asignacion::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['asignaciones']))))->get()->pluck('id')->toArray();
-                $usuario->asignaciones()->sync($asignacionID);
+                // Desvincula todos los productos y asignaciones del usuario
+                \App\Models\Inventario\Productos::where('usuario_id', $usuario->id)->update(['usuario_id' => null]);
+                \App\Models\Inventario\Asignacion::where('usuario_id', $usuario->id)->update(['usuario_id' => null]);
+
+                // Vincula los productos al usuario de forma masiva
+                \App\Models\Inventario\Productos::whereIn('nombre', array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))
+                    ->update(['usuario_id' => $usuario->id]);
+
+                // Vincula las asignaciones al usuario de forma masiva
+                \App\Models\Inventario\Asignacion::whereIn('destino', array_map('Str::lower', array_map('trim', explode(',', $row['asignaciones']))))
+                    ->update(['usuario_id' => $usuario->id]);
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
