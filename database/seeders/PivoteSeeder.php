@@ -23,7 +23,7 @@ class PivoteSeeder extends Seeder
      */
     public function run(): void
     {
-        AsignarDescripcion::create([
+        /* AsignarDescripcion::create([
             'asignar_id'=>1,
             'descripcion_id'=>1,
         ]);
@@ -46,7 +46,7 @@ class PivoteSeeder extends Seeder
         PerifericoDescripcion::create([
             'periferico_id'=>1,
             'descripcion_id'=>1,
-        ]);
+        ]); */
 
         /* Asignar_productos::create([
             'asignar_id'=>1,

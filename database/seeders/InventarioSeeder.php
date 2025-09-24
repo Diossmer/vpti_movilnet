@@ -16,7 +16,7 @@ class InventarioSeeder extends Seeder
 {
     public function run(): void
     {
-        Productos::create([
+        /* Productos::create([
             'nombre' => 'N/A',
             'usuario_id'=>1,
             'estatus_id'=>1,
@@ -74,6 +74,6 @@ class InventarioSeeder extends Seeder
             'salida'=>0,
             'observacion' => 'N/A',
             'estatus_id'=>1,
-        ]);
+        ]); */
     }
 }
