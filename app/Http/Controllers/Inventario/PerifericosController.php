@@ -80,7 +80,7 @@ class PerifericosController extends Controller
                     $perifericos->productos()->sync($request->producto_id);
                 } */
                 if($request->filled('descripcion_id')){
-                    $inventario->descripciones()->sync($request->descripcion_id);
+                    $perifericos->descripciones()->sync($request->descripcion_id);
                 }
                 if(is_null($perifericos)){
                     Log::channel('sistema')->debug('No se ha logrado guardar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);

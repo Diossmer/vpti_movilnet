@@ -43,7 +43,7 @@ class UbicacionController extends Controller
         try {
             if(Auth::check()){
                 $validated = $request->validate([
-                    'origen' => 'nullable|string|max:255|different:destino',
+                    'origen' => 'nullable|string|max:255',
                     'destino' => 'required|string|max:255',
                     'piso' => 'nullable|string',
                     'region' => 'nullable|string|max:255',
@@ -52,7 +52,6 @@ class UbicacionController extends Controller
                     //'producto_id' => 'required|array|exists:productos,id',
                     'descripcion_id'=>'required|array|exists:descripcion,id',
                 ], [
-                    'origen.different' => 'Origen y destino deben ser diferentes',
                     'region' => 'Región no válida. Opciones: Norte, Sur, Este, Oeste, Centro',
                     //'producto_id.exists' => 'El producto especificado no existe',
                     //'producto_id.required' => 'El campo producto_id es obligatorio.',
@@ -121,7 +120,7 @@ class UbicacionController extends Controller
         try {
             if(Auth::check()){
                 $validated = $request->validate([
-                    'origen' => 'nullable|string|max:255|different:destino',
+                    'origen' => 'nullable|string|max:255',
                     'destino' => 'required|string|max:255',
                     'piso' => 'nullable|string',
                     'region' => 'nullable|string|max:255',
@@ -130,7 +129,6 @@ class UbicacionController extends Controller
                     //'producto_id' => 'required|array|exists:productos,id',
                     'descripcion_id'=>'required|array|exists:descripcion,id',
                 ], [
-                    'origen.different' => 'Origen y destino deben ser diferentes',
                     'region' => 'Región no válida. Opciones: Norte, Sur, Este, Oeste, Centro',
                     //'producto_id.exists' => 'El producto especificado no existe',
                     //'producto_id.required' => 'El campo producto_id es obligatorio.',
