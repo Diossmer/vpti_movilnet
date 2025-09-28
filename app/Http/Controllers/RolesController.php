@@ -155,7 +155,7 @@ class RolesController extends Controller
                     throw new \Exception("No se ha logrado eliminar un rol.", 404);
                     return response()->json(['error'=>'No se ha logrado eliminar un rol.'], 404);
                 }
-                if ($rol->id === 1) {
+                if ($rol->id === 1 || $rol->id === 2 || $rol->id === 3 || $rol->id === 4) {
                     Log::channel('sistema')->warning('Intento de eliminar al rol Administrador bloqueado.', [
                         'fecha_hora' => now()->toDateTimeString(), 
                         'user_id_intento' => Auth::id(),

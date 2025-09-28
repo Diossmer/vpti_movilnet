@@ -165,6 +165,10 @@ Actualización de inventario: Monitorear los niveles de stock y actualizar la ca
 
 Administración de colas: Gestionar las "colas" de trabajo relacionadas con los productos, como pedidos pendientes, devoluciones o movimientos entre almacenes.',
         ]);
+        Roles::create([
+            'nombre' => 'Usuario',
+            'descripcion' => ' es la herramienta fundamental para definir quién puede hacer qué dentro de una aplicación, siendo un pilar clave en la seguridad y la arquitectura de cualquier sistema.',
+        ]);
         Usuarios::create([
             'nombre' => 'principal',
             'apellido' => 'administrador',

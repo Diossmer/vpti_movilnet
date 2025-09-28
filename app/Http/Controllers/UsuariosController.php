@@ -103,7 +103,7 @@ class UsuariosController extends Controller
                     'codigo_postal'=>$request->codigo_postal,
                     'password'=>Hash::make($request->password),
                     'estatus_id'=>$request->estatus_id,
-                    'rol_id'=>$request->rol_id<5 ?$request->rol_id : 5,
+                    'rol_id'=> Auth::user()->rol_id === 1 ? $request->rol_id : 5, // Solo el administrador puede asignar roles
                 ])->load(['estatus','rol','productos','asignaciones']);
                 if(is_null($usuario)){
                     Log::channel('sistema')->debug('No se ha logrado guardar usuario. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
