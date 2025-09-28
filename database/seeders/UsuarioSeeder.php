@@ -47,6 +47,10 @@ class UsuarioSeeder extends Seeder
             'descripcion' => 'Instalado en el sistema',
         ]);
         Estatus::create([
+            'nombre' => 'Nuevo',
+            'descripcion' => 'Nuevo en el sistema',
+        ]);
+        Estatus::create([
             'nombre' => 'Obsoleto',
             'descripcion' => 'Obsoleto en el sistema',
         ]);
@@ -138,31 +142,26 @@ Gestión del sistema: Realiza tareas de mantenimiento, como la configuración de
         ]);
         Roles::create([
             'nombre' => 'Control de calidad',
-            'descripcion' => 'se enfoca en verificar que los productos y procesos cumplan con los estándares establecidos antes de ser distribuidos o almacenados.
+            'descripcion' => 'Se enfoca en su función es revisar los periféricos y no periféricos que ingresan al inventario para
+asegurar que no tengan defectos. 
 
-Inspección de productos: Su función es revisar los periféricos y no periféricos que ingresan al inventario para asegurar que no tengan defectos.
-
-Actualización de estado: Marcar los productos como "aprobados", "rechazados" o "en revisión" dentro del sistema.
+Actualización de estado: Marcar los productos como "aprobados","rechazados" o "en revisión" dentro del sistema.
 
 Generación de informes: Crear reportes sobre la calidad de los productos, identificando fallas recurrentes o problemas con los proveedores.',
         ]);
         Roles::create([
             'nombre' => 'Recepción',
-            'descripcion' => 'se encarga de la entrada inicial de productos al inventario.
+            'descripcion' => 'Se encarga de la entrada inicial de productos al inventario.
 
 Registro de productos: Registrar la llegada de nuevos productos, ya sean periféricos o no, en el sistema del inventario.
 
-Asignación inicial: Etiquetar y asignar una ubicación temporal a los productos recibidos.
-
-Validación de envíos: Corroborar que la cantidad y tipo de productos recibidos coincidan con la orden de compra o el manifiesto de envío.',
+Asignación inicial: Etiquetar y asignar una ubicación temporal a los productos recibidos.',
         ]);
         Roles::create([
             'nombre' => 'Gestion de productos',
-            'descripcion' => 'administra y mantiene la información de los productos a lo largo de su ciclo de vida en el inventario.
+            'descripcion' => 'Administra y mantiene la información de los productos a lo largo de su ciclo de vida en el inventario.
 
 Actualización de inventario: Monitorear los niveles de stock y actualizar la cantidad de productos disponibles.
-
-Clasificación y organización: Mantener la base de datos de productos organizada, asignando categorías, subcategorías y descripciones detalladas.
 
 Administración de colas: Gestionar las "colas" de trabajo relacionadas con los productos, como pedidos pendientes, devoluciones o movimientos entre almacenes.',
         ]);
