@@ -25,6 +25,14 @@ class EstatusController extends Controller
                     throw new \Exception("No se ha logrado encontrar un estatus.", 404);
                     return response()->json(['error'=>'No se ha logrado encontrar estatus.'], 404);
                 }
+                if ($estatus->id === 1) {
+                    Log::channel('sistema')->warning('Intento de eliminar al estatus Administrador bloqueado.', [
+                        'fecha_hora' => now()->toDateTimeString(), 
+                        'user_id_intento' => Auth::id(),
+                        'user_id_objetivo' => $estatus->id
+                    ]);
+                    return response()->json(['error' => 'No está permitido eliminar el estatus administrador principal.'], 403); // 403 Forbidden
+                }
                 return response()->json($estatus, 200);
             }else{
                 Log::channel('errores')->error('No está autorizado.', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);

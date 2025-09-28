@@ -250,6 +250,14 @@ class UsuariosController extends Controller
                     throw new \Exception("No se ha logrado eliminar usuario.", 404);
                     return response()->json(['error'=>'No se ha logrado eliminar usuario.'], 404);
                 }
+                if ($usuario->rol_id === 1) {
+                    Log::channel('sistema')->warning('Intento de eliminar al Administrador bloqueado.', [
+                        'fecha_hora' => now()->toDateTimeString(), 
+                        'user_id_intento' => Auth::id(),
+                        'user_id_objetivo' => $usuario->id
+                    ]);
+                    return response()->json(['error' => 'No está permitido eliminar al administrador principal.'], 403); // 403 Forbidden
+                }
                 Log::channel('usuario')->info('Se eliminó correctamente.'.$usuario,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
 
                 $usuario->destroy($id);
