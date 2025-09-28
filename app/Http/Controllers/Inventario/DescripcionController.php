@@ -212,9 +212,19 @@ class DescripcionController extends Controller
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Descripcion::with('producto','asignaciones','evaluaciones','inventarios','perifericos','ubicaciones')->where('id','=',$id)->get()->makeHidden(['id']));
+                if(!$data){
+                    Log::channel('sistema')->debug('No se ha logrado exportar la descripcion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado exportar la descripcion.", 404);
+                }
+                Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return ($data)->download('*.xlsx');
             }
             $data = new ExportMultiSheet(Descripcion::with('producto','asignaciones','evaluaciones','inventarios','perifericos','ubicaciones')->get()->makeHidden(['id']));
+            if(!$data){
+                Log::channel('sistema')->debug('No se ha logrado exportar la descripcion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                throw new Exception("No se ha logrado exportar la descripcion.", 404);
+            }
+            Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -240,6 +250,7 @@ class DescripcionController extends Controller
             $descripcionCargados = $MultiSheet?->DescripcionesImport->getRegistrosCargados();
             $descripcionFallidos = $MultiSheet?->DescripcionesImport->getRegistrosFallidos();
             $descripcionPendientes = $MultiSheet?->DescripcionesImport->getRegistrosPendientes();
+            Log::channel('usuario')->info('Se importó correctamente.', ['pendientes' => $descripcionPendientes,'fallidos' => $descripcionFallidos,'cargados' => $descripcionCargados,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
             'descripcion' => 'success',
             'mensaje' => 'Archivo importado correctamente.',
@@ -250,6 +261,7 @@ class DescripcionController extends Controller
             ]], 200);
         } catch (\Exception $e) {
             Log::error('Error al importar el archivo: ' . $e->getMessage());
+            Log::channel('errores')->error('Error al importar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
                 'estatus' => 'error',
                 'error' => 'Error al importar el archivo: ' . $e->getMessage(),

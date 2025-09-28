@@ -201,9 +201,19 @@ class UbicacionController extends Controller
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Ubicacion::with('descripciones.producto')->where('id','=',$id)->get()->makeHidden(['id']));
+                if(!$data){
+                    Log::channel('sistema')->debug('No se ha logrado exportar una ubicación. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado exportar una ubicación.", 404);
+                }
+                Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return ($data)->download('*.xlsx');
             }
             $data = new ExportMultiSheet(Ubicacion::with('descripciones.producto')->get()->makeHidden(['id']));
+            if(!$data){
+                Log::channel('sistema')->debug('No se ha logrado exportar una ubicación. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                throw new Exception("No se ha logrado exportar una ubicación.", 404);
+            }
+            Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -229,6 +239,7 @@ class UbicacionController extends Controller
             $ubicacionCargados = $MultiSheet?->UbicacionesImport->getRegistrosCargados();
             $ubicacionFallidos = $MultiSheet?->UbicacionesImport->getRegistrosFallidos();
             $ubicacionPendientes = $MultiSheet?->UbicacionesImport->getRegistrosPendientes();
+            Log::channel('usuario')->info('Se importó correctamente.', ['pendientes' => $ubicacionPendientes,'fallidos' => $ubicacionFallidos,'cargados' => $ubicacionCargados,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
             'ubicacion' => 'success',
             'mensaje' => 'Archivo importado correctamente.',
@@ -239,6 +250,7 @@ class UbicacionController extends Controller
             ]], 200);
         } catch (\Exception $e) {
             Log::error('Error al importar el archivo: ' . $e->getMessage());
+            Log::channel('errores')->error('Error al importar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
                 'estatus' => 'error',
                 'error' => 'Error al importar el archivo: ' . $e->getMessage(),
@@ -275,15 +287,16 @@ class UbicacionController extends Controller
                 'usuario' => \App\Models\Usuarios::find($id)?? '',
                 //'usuario' => \App\Models\Usuarios::find(Auth::id())?? '',
             ];
-
+            Log::channel('sistema')->debug('Generando PDF para ubicacion.', ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
             // Generar y mostrar el PDF.
             $pdf = Pdf::loadView('pdf.ubicaciones', $data);
-            return $pdf->stream("reporte_inventario.pdf");
+            Log::channel('usuario')->info('Se generó correctamente el PDF.', ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
+            return $pdf->stream("reporte_ubicacion.pdf");
 
         } catch (\Exception $e) {
             // Registrar el error para depuración.
             Log::error("Error al generar PDF: " . $e->getMessage());
-            
+            Log::channel('errores')->error('Error al generar el PDF: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             // Retornar una respuesta de error.
             return response()->json(['error' => 'No se pudo generar el PDF. Por favor, inténtalo de nuevo.'], 500);
         }

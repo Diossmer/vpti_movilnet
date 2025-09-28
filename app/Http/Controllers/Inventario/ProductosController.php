@@ -173,9 +173,19 @@ class ProductosController extends Controller
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Productos::with('descripciones', 'usuario', 'estatus')->where('id','=',$id)->get()->makeHidden(['id']));
+                if(!$data){
+                    Log::channel('sistema')->debug('No se ha logrado exportar un producto. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado exportar un producto.", 404);
+                }
+                Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return ($data)->download('*.xlsx');
             }
             $data = new ExportMultiSheet(Productos::with('descripciones', 'usuario', 'estatus')->get()->makeHidden(['id']));
+            if(!$data){
+                Log::channel('sistema')->debug('No se ha logrado exportar un producto. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                throw new Exception("No se ha logrado exportar un producto.", 404);
+            }
+            Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -201,6 +211,7 @@ class ProductosController extends Controller
             $productosCargados = $MultiSheet?->ProductosImport->getRegistrosCargados();
             $productosFallidos = $MultiSheet?->ProductosImport->getRegistrosFallidos();
             $productosPendientes = $MultiSheet?->ProductosImport->getRegistrosPendientes();
+            Log::channel('usuario')->info('Se importó correctamente.', ['pendientes' => $productosPendientes,'fallidos' => $productosFallidos,'cargados' => $productosCargados,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
             'productos' => 'success',
             'mensaje' => 'Archivo importado correctamente.',
@@ -211,6 +222,7 @@ class ProductosController extends Controller
             ]], 200);
         } catch (\Exception $e) {
             Log::error('Error al importar el archivo: ' . $e->getMessage());
+            Log::channel('errores')->error('Error al importar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
                 'estatus' => 'error',
                 'error' => 'Error al importar el archivo: ' . $e->getMessage(),

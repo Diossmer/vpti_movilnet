@@ -219,9 +219,19 @@ class InventariosController extends Controller
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Inventarios::with('estatus','descripciones.producto')->where('id','=',$id)->get()->makeHidden(['id']));
+                if(!$data){
+                    Log::channel('sistema')->debug('No se ha logrado exportar un inventario. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado exportar un inventario.", 404);
+                }
+                Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return ($data)->download('*.xlsx');
             }
             $data = new ExportMultiSheet(Inventarios::with('estatus','descripciones.producto')->get()->makeHidden(['id']));
+            if(!$data){
+                Log::channel('sistema')->debug('No se ha logrado exportar un inventario. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                throw new Exception("No se ha logrado exportar un inventario.", 404);
+            }
+            Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -247,6 +257,7 @@ class InventariosController extends Controller
             $inventariosCargados = $MultiSheet?->InventariosImport->getRegistrosCargados();
             $inventariosFallidos = $MultiSheet?->InventariosImport->getRegistrosFallidos();
             $inventariosPendientes = $MultiSheet?->InventariosImport->getRegistrosPendientes();
+            Log::channel('usuario')->info('Se importó correctamente.', ['pendientes' => $inventariosPendientes,'fallidos' => $inventariosFallidos,'cargados' => $inventariosCargados,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
             'inventarios' => 'success',
             'mensaje' => 'Archivo importado correctamente.',
@@ -257,6 +268,7 @@ class InventariosController extends Controller
             ]], 200);
         } catch (\Exception $e) {
             Log::error('Error al importar el archivo: ' . $e->getMessage());
+            Log::channel('errores')->error('Error al importar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
                 'estatus' => 'error',
                 'error' => 'Error al importar el archivo: ' . $e->getMessage(),
@@ -293,15 +305,16 @@ class InventariosController extends Controller
                 'usuario' => \App\Models\Usuarios::find($id)?? '',
                 //'usuario' => \App\Models\Usuarios::find(Auth::id())?? '',
             ];
-
+            Log::channel('sistema')->debug('Generando PDF para inventario.', ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
             // Generar y mostrar el PDF.
             $pdf = Pdf::loadView('pdf.sinperifericos', $data);
+            Log::channel('usuario')->info('Se generó correctamente el PDF.', ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
             return $pdf->stream("reporte_inventario.pdf");
 
         } catch (\Exception $e) {
             // Registrar el error para depuración.
             Log::error("Error al generar PDF: " . $e->getMessage());
-            
+            Log::channel('errores')->error('Error al generar el PDF: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             // Retornar una respuesta de error.
             return response()->json(['error' => 'No se pudo generar el PDF. Por favor, inténtalo de nuevo.'], 500);
         }

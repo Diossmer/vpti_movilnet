@@ -172,9 +172,19 @@ class RolesController extends Controller
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Roles::where('id','=',$id)->get()->makeHidden(['id']));
+                if(!$data){
+                    Log::channel('sistema')->debug('No se ha logrado exportar un rol. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado exportar un rol.", 404);
+                }
+                Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return ($data)->download('*.xlsx');
             }
             $data = new ExportMultiSheet(Roles::get()->makeHidden(['id']));
+            if(!$data){
+                Log::channel('sistema')->debug('No se ha logrado exportar un rol. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                throw new Exception("No se ha logrado exportar un rol.", 404);
+            }
+            Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -200,6 +210,7 @@ class RolesController extends Controller
             $rolesCargados = $MultiSheet?->RolesImport->getRegistrosCargados();
             $rolesFallidos = $MultiSheet?->RolesImport->getRegistrosFallidos();
             $rolesPendientes = $MultiSheet?->RolesImport->getRegistrosPendientes();
+            Log::channel('usuario')->info('Se importó correctamente.', ['pendientes' => $rolesPendientes,'fallidos' => $rolesFallidos,'cargados' => $rolesCargados,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
             'roles' => 'success',
             'mensaje' => 'Archivo importado correctamente.',
@@ -210,6 +221,7 @@ class RolesController extends Controller
             ]], 200);
         } catch (\Exception $e) {
             Log::error('Error al importar el archivo: ' . $e->getMessage());
+            Log::channel('errores')->error('Error al importar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
                 'estatus' => 'error',
                 'error' => 'Error al importar el archivo: ' . $e->getMessage(),

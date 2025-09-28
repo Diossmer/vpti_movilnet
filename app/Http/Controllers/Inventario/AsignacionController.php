@@ -206,9 +206,19 @@ class AsignacionController extends Controller
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Asignacion::with('estatus', 'usuario', 'descripciones.producto')->where('id','=',$id)->get()->makeHidden(['id']));
+                if(!$data){
+                    Log::channel('sistema')->debug('No se ha logrado exportar una asignación. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado exportar una asignación.", 404);
+                }
+                Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return ($data)->download('*.xlsx');
             }
             $data = new ExportMultiSheet(Asignacion::with('estatus', 'usuario', 'descripciones.producto')->get()->makeHidden(['id']));
+            if(!$data){
+                Log::channel('sistema')->debug('No se ha logrado exportar una asignación. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                throw new Exception("No se ha logrado exportar una asignación.", 404);
+            }
+            Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -234,6 +244,7 @@ class AsignacionController extends Controller
             $asignacionCargados = $MultiSheet?->AsignacionImport->getRegistrosCargados();
             $asignacionFallidos = $MultiSheet?->AsignacionImport->getRegistrosFallidos();
             $asignacionPendientes = $MultiSheet?->AsignacionImport->getRegistrosPendientes();
+            Log::channel('usuario')->info('Se importó correctamente.', ['pendientes' => $asignacionPendientes,'fallidos' => $asignacionFallidos,'cargados' => $asignacionCargados,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
             'asignacion' => 'success',
             'mensaje' => 'Archivo importado correctamente.',
@@ -244,6 +255,7 @@ class AsignacionController extends Controller
             ]], 200);
         } catch (\Exception $e) {
             Log::error('Error al importar el archivo: ' . $e->getMessage());
+            Log::channel('errores')->error('Error al importar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
                 'estatus' => 'error',
                 'error' => 'Error al importar el archivo: ' . $e->getMessage(),
@@ -273,15 +285,16 @@ class AsignacionController extends Controller
                 'usuario' => \App\Models\Usuarios::find($id)?? '',
                 //'usuario' => \App\Models\Usuarios::find(Auth::id())?? '',
             ];
-
+            Log::channel('sistema')->debug('Generando PDF para asignación.', ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
             // Generar y mostrar el PDF.
             $pdf = Pdf::loadView('pdf.asignaciones', $data);
-            return $pdf->stream("reporte_inventario.pdf");
+            Log::channel('usuario')->info('Se generó correctamente el PDF.', ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
+            return $pdf->stream("reporte_asignacion.pdf");
 
         } catch (\Exception $e) {
             // Registrar el error para depuración.
             Log::error("Error al generar PDF: " . $e->getMessage());
-            
+            Log::channel('errores')->error('Error al generar el PDF: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             // Retornar una respuesta de error.
             return response()->json(['error' => 'No se pudo generar el PDF. Por favor, inténtalo de nuevo.'], 500);
         }

@@ -161,9 +161,19 @@ class EstatusController extends Controller
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Estatus::with('usuarios','productos','asignaciones','perifericos','inventarios','evaluaciones')->where('id','=',$id)->get()->makeHidden(['id']));
+                if(!$data){
+                    Log::channel('sistema')->debug('No se ha logrado exportar un estatus. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado exportar un estatus.", 404);
+                }
+                Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return ($data)->download('*.xlsx');
             }
             $data = new ExportMultiSheet(Estatus::with('usuarios','productos','asignaciones','perifericos','inventarios','evaluaciones')->get()->makeHidden(['id']));
+            if(!$data){
+                Log::channel('sistema')->debug('No se ha logrado exportar un estatus. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                throw new Exception("No se ha logrado exportar un estatus.", 404);
+            }
+            Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -189,6 +199,7 @@ class EstatusController extends Controller
             $estatusCargados = $MultiSheet?->EstatusImport->getRegistrosCargados();
             $estatusFallidos = $MultiSheet?->EstatusImport->getRegistrosFallidos();
             $estatusPendientes = $MultiSheet?->EstatusImport->getRegistrosPendientes();
+            Log::channel('usuario')->info('Se importó correctamente.', ['pendientes' => $estatusPendientes,'fallidos' => $estatusFallidos,'cargados' => $estatusCargados,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
             'estatus' => 'success',
             'mensaje' => 'Archivo importado correctamente.',
@@ -199,6 +210,7 @@ class EstatusController extends Controller
             ]], 200);
         } catch (\Exception $e) {
             Log::error('Error al importar el archivo: ' . $e->getMessage());
+            Log::channel('errores')->error('Error al importar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
                 'estatus' => 'error',
                 'error' => 'Error al importar el archivo: ' . $e->getMessage(),

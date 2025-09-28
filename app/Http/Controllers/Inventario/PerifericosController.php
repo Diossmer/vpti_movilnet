@@ -218,9 +218,19 @@ class PerifericosController extends Controller
         try {
             if(is_numeric($id)){
                 $data = new ExportMultiSheet(Perifericos::with('estatus','descripciones.producto')->where('id','=',$id)->get()->makeHidden(['id']));
+                if(!$data){
+                    Log::channel('sistema')->debug('No se ha logrado exportar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado exportar un perifericos.", 404);
+                }
+                Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return ($data)->download('*.xlsx');
             }
             $data = new ExportMultiSheet(Perifericos::with('estatus','descripciones.producto')->get()->makeHidden(['id']));
+            if(!$data){
+                Log::channel('sistema')->debug('No se ha logrado exportar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                throw new Exception("No se ha logrado exportar un perifericos.", 404);
+            }
+            Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return ($data)->download('*.xlsx');
         } catch (\Exception $e) {
             Log::channel('errores')->error('Error al exportar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -246,6 +256,7 @@ class PerifericosController extends Controller
             $perifericosCargados = $MultiSheet?->PerifericosImport->getRegistrosCargados();
             $perifericosFallidos = $MultiSheet?->PerifericosImport->getRegistrosFallidos();
             $perifericosPendientes = $MultiSheet?->PerifericosImport->getRegistrosPendientes();
+            Log::channel('usuario')->info('Se importó correctamente.', ['pendientes' => $perifericosPendientes,'fallidos' => $perifericosFallidos,'cargados' => $perifericosCargados,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
             'perifericos' => 'success',
             'mensaje' => 'Archivo importado correctamente.',
@@ -256,6 +267,7 @@ class PerifericosController extends Controller
             ]], 200);
         } catch (\Exception $e) {
             Log::error('Error al importar el archivo: ' . $e->getMessage());
+            Log::channel('errores')->error('Error al importar el archivo: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json([
                 'estatus' => 'error',
                 'error' => 'Error al importar el archivo: ' . $e->getMessage(),
@@ -292,15 +304,16 @@ class PerifericosController extends Controller
                 'usuario' => \App\Models\Usuarios::find($id)?? '',
                 //'usuario' => \App\Models\Usuarios::find(Auth::id())?? '',
             ];
-
+            Log::channel('sistema')->debug('Generando PDF para perifericos.', ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
             // Generar y mostrar el PDF.
             $pdf = Pdf::loadView('pdf.perifericos', $data);
-            return $pdf->stream("reporte_inventario.pdf");
+            Log::channel('usuario')->info('Se generó correctamente el PDF.', ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
+            return $pdf->stream("reporte_perifericos.pdf");
 
         } catch (\Exception $e) {
             // Registrar el error para depuración.
             Log::error("Error al generar PDF: " . $e->getMessage());
-            
+            Log::channel('errores')->error('Error al generar el PDF: ', [$e->getMessage(),'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             // Retornar una respuesta de error.
             return response()->json(['error' => 'No se pudo generar el PDF. Por favor, inténtalo de nuevo.'], 500);
         }
