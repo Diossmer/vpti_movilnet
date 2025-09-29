@@ -103,7 +103,7 @@ class UsuariosController extends Controller
                     'codigo_postal'=>$request->codigo_postal,
                     'password'=>Hash::make($request->password),
                     'estatus_id'=>$request->estatus_id,
-                    'rol_id'=> Auth::user()->rol_id === 1 ? $request->rol_id : 5, // Solo el administrador puede asignar roles
+                    'rol_id'=> $request->rol_id < 5 ? $request->rol_id : Auth::user()->rol->where('id', '>=', $request->rol_id)->first()->id,
                 ])->load(['estatus','rol','productos','asignaciones']);
                 if(is_null($usuario)){
                     Log::channel('sistema')->debug('No se ha logrado guardar usuario. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
@@ -219,7 +219,7 @@ class UsuariosController extends Controller
                     'codigo_postal'=>$request->codigo_postal,
                     'password'=>Hash::make($request->password),
                     'estatus_id'=>$request->estatus_id,
-                    'rol_id'=>$request->rol_id,
+                    'rol_id'=>$request->rol_id < 5 ? $request->rol_id : Auth::user()->rol->where('id', '>=', $request->rol_id)->first()->id,
                 ]);
                 Log::channel('usuario')->info('Se actualizó correctamente.'.$usuario,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);

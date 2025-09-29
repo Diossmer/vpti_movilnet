@@ -8,8 +8,9 @@ Route::group(['middleware' => 'api','except' => ['ingresar']],function ($routes)
     Route::post('ingresar', [App\Http\Controllers\AuthController::class, 'ingresar'])->name('ingresar');
     Route::get('perfil', [App\Http\Controllers\AuthController::class, 'perfil'])->name('perfil');
     Route::post('salir', [App\Http\Controllers\AuthController::class, 'salir'])->name('salir');
-    Route::patch('refrescar',[App\Http\Controllers\AuthController::class, 'refrescar'])->name('usuarrefrescariolistar');
-    Route::patch('perfil/contraseña',[App\Http\Controllers\AuthController::class, 'refrescarContraseña'])->name('refrescarContraseña');
+    Route::patch('refrescar',[App\Http\Controllers\AuthController::class, 'refrescar'])->name('refrescar');
+    Route::patch('perfil/contrasena',[App\Http\Controllers\AuthController::class, 'refrescarContrasena'])->name('refrescarContrasena');
+    Route::patch('perfil/refrescar',[App\Http\Controllers\AuthController::class, 'refrescarPerfil'])->name('refrescarPerfil');
     //Route::post('correo/verificacion', [App\Http\Controllers\AuthController::class, 'enviarVerificacionCorreo']->name('VerificacionCorreo'));
     //Route::get('correo/verificar/{id?}', [App\Http\Controllers\AuthController::class, 'verificar'])->name('verificar');
 });

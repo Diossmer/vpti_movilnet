@@ -102,7 +102,77 @@ class AuthController extends Controller
         }
     }
 
-    public function refrescarContraseña(Request $request){
+    public function refrescarPerfil(Request $request){
+        $usuario = auth()->user();
+        if (!$usuario) {
+            Log::channel('sistema')->debug('refrescarPerfil: No hay sesión activa', ['fecha_hora' => now()->toDateTimeString()]);
+            return response()->json(['error' => 'No hay sesión activa'], 401);
+        }
+        try {
+            // Se actualizan las propiedades del objeto $usuario, NO se sobrescribe la variable $usuario.
+            // Usamos $request->has() ya que la interfaz Vue envía solo el campo editado al salir del foco.
+            if ($request->has('nombre')) {
+                $usuario->nombre = $request->nombre;
+            }
+            if ($request->has('apellido')) {
+                $usuario->apellido = $request->apellido;
+            }
+            if ($request->has('correo')) {
+                // Validación opcional para el correo
+                $request->validate(['correo' => 'email|unique:usuarios,correo,' . $usuario->id]);
+                $usuario->correo = $request->correo;
+            }
+            if ($request->has('direccion')) {
+                $usuario->direccion = $request->direccion;
+            }
+            if ($request->has('ciudad')) {
+                $usuario->ciudad = $request->ciudad;
+            }
+            if ($request->has('estado')) {
+                $usuario->estado = $request->estado;
+            }
+            if ($request->has('telefono_casa')) {
+                $usuario->telefono_casa = $request->telefono_casa;
+            }
+            if ($request->has('telefono_celular')) {
+                $usuario->telefono_celular = $request->telefono_celular;
+            }
+            if ($request->has('telefono_alternativo')) {
+                $usuario->telefono_alternativo = $request->telefono_alternativo;
+            }
+            if ($request->has('codigo_postal')) {
+                $usuario->codigo_postal = $request->codigo_postal;
+            }
+
+            $usuario->save();
+            Log::channel('usuario')->info('Perfil actualizado', [
+                'nombre' => $usuario->nombre,
+                'apellido' => $usuario->apellido,
+                'cedula' => $usuario->cedula,
+                'usuario' => $usuario->usuario,
+                'correo' => $usuario->correo,
+                'direccion' => $usuario->direccion,
+                'ciudad' => $usuario->ciudad,
+                'estado' => $usuario->estado,
+                'telefono_casa' => $usuario->telefono_casa,
+                'telefono_celular' => $usuario->telefono_celular,
+                'telefono_alternativo' => $usuario->telefono_alternativo,
+                'codigo_postal' => $usuario->codigo_postal,
+                'estatus_id' => $usuario->estatus_id,
+                'rol_id' => $usuario->rol_id,
+                'fecha_hora' => now()->toDateTimeString()
+            ]);
+            return response()->json(['mensaje'=>"Se almacenó correctamente."], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::channel('sistema')->debug('Validación fallida en refrescarPerfil: ' . $e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            Log::channel('errores')->error('Error al actualizar el perfil: ' . $e->getMessage(), ['fecha_hora' => now()->toDateTimeString(), 'user_id' => $usuario->id ?? 'N/A']);
+            return response()->json(['error' => 'Error inesperado al actualizar el perfil.'], 500);
+        }
+    }
+
+    public function refrescarContrasena(Request $request){
         $request->validate([
             'password_old' => 'required|string|min:4',
             'password' => 'required|string|min:4',
