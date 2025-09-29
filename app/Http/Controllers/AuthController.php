@@ -102,72 +102,56 @@ class AuthController extends Controller
         }
     }
 
-    public function refrescarPerfil(Request $request){
+    public function refrescarPerfil(Request $request)
+    {
         $usuario = auth()->user();
         if (!$usuario) {
             Log::channel('sistema')->debug('refrescarPerfil: No hay sesión activa', ['fecha_hora' => now()->toDateTimeString()]);
             return response()->json(['error' => 'No hay sesión activa'], 401);
         }
-        try {
-            // Se actualizan las propiedades del objeto $usuario, NO se sobrescribe la variable $usuario.
-            // Usamos $request->has() ya que la interfaz Vue envía solo el campo editado al salir del foco.
-            if ($request->has('nombre')) {
-                $usuario->nombre = $request->nombre;
-            }
-            if ($request->has('apellido')) {
-                $usuario->apellido = $request->apellido;
-            }
-            if ($request->has('correo')) {
-                // Validación opcional para el correo
-                $request->validate(['correo' => 'email|unique:usuarios,correo,' . $usuario->id]);
-                $usuario->correo = $request->correo;
-            }
-            if ($request->has('direccion')) {
-                $usuario->direccion = $request->direccion;
-            }
-            if ($request->has('ciudad')) {
-                $usuario->ciudad = $request->ciudad;
-            }
-            if ($request->has('estado')) {
-                $usuario->estado = $request->estado;
-            }
-            if ($request->has('telefono_casa')) {
-                $usuario->telefono_casa = $request->telefono_casa;
-            }
-            if ($request->has('telefono_celular')) {
-                $usuario->telefono_celular = $request->telefono_celular;
-            }
-            if ($request->has('telefono_alternativo')) {
-                $usuario->telefono_alternativo = $request->telefono_alternativo;
-            }
-            if ($request->has('codigo_postal')) {
-                $usuario->codigo_postal = $request->codigo_postal;
-            }
 
-            $usuario->save();
-            Log::channel('usuario')->info('Perfil actualizado', [
-                'nombre' => $usuario->nombre,
-                'apellido' => $usuario->apellido,
-                'cedula' => $usuario->cedula,
-                'usuario' => $usuario->usuario,
-                'correo' => $usuario->correo,
-                'direccion' => $usuario->direccion,
-                'ciudad' => $usuario->ciudad,
-                'estado' => $usuario->estado,
-                'telefono_casa' => $usuario->telefono_casa,
-                'telefono_celular' => $usuario->telefono_celular,
-                'telefono_alternativo' => $usuario->telefono_alternativo,
-                'codigo_postal' => $usuario->codigo_postal,
-                'estatus_id' => $usuario->estatus_id,
-                'rol_id' => $usuario->rol_id,
-                'fecha_hora' => now()->toDateTimeString()
+        try {
+            // 1. Validación dinámica y ajustada (Usando 'sometimes' para PATCH)
+            // IMPORTANTE: Se ignora la cédula/correo/usuario del usuario actual en las reglas 'unique'.
+            $request->validate([
+                'nombre' => 'sometimes|required|string|max:255',
+                'apellido' => 'sometimes|required|string|max:255',
+                'correo' => 'sometimes|required|email|max:255|unique:usuarios,correo,'.$usuario->id,
+                'direccion' => 'nullable|string|max:500',
+                'ciudad' => 'nullable|string|max:255',
+                'estado' => 'nullable|string|max:255',
+                'telefono_casa' => 'nullable|string|max:15',
+                'telefono_celular' => 'sometimes|required|string|max:15',
+                'telefono_alternativo' => 'nullable|string|max:15',
+                'codigo_postal' => 'nullable|string|max:10',
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'correo.unique' => 'El correo ya está en uso.',
+                'telefono_celular.required' => 'El campo telefono celular es obligatorio.',
             ]);
-            return response()->json(['mensaje'=>"Se almacenó correctamente."], 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::channel('sistema')->debug('Validación fallida en refrescarPerfil: ' . $e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
-            return response()->json(['error' => $e->validator->errors()], 422);
+
+            $data = $request->only([
+                'nombre', 'apellido', 'correo', 'direccion', 'ciudad', 'estado',
+                'telefono_casa', 'telefono_celular', 'telefono_alternativo', 'codigo_postal'
+            ]);
+
+            foreach ($data as $key => $value) {
+                if ($request->has($key)) {
+                    $usuario->{$key} = $value;
+                }
+            }
+            
+            $usuario->save();
+            
+            Log::channel('usuario')->info('Datos de perfil actualizados', ['user_id' => $usuario->id, 'cambios' => $data]);
+            return response()->json(['mensaje'=>"Se actualizó correctamente."], 200);
+
+        } catch (ValidationException $e) {
+            Log::channel('sistema')->debug('Validación fallida en refrescarPerfil: ' . $e->getMessage());
+            // Laravel devuelve automáticamente 422 con los errores detallados.
+            return response()->json(['error' => $e->validator->errors()], 422); 
         } catch (\Exception $e) {
-            Log::channel('errores')->error('Error al actualizar el perfil: ' . $e->getMessage(), ['fecha_hora' => now()->toDateTimeString(), 'user_id' => $usuario->id ?? 'N/A']);
+            Log::channel('errores')->error('Error inesperado al actualizar el perfil: ' . $e->getMessage());
             return response()->json(['error' => 'Error inesperado al actualizar el perfil.'], 500);
         }
     }
@@ -188,7 +172,8 @@ class AuthController extends Controller
                     'cedula' => $usuario->cedula,
                     'fecha_hora' => now()->toDateTimeString()
                 ]);
-                return $this->respondWithToken(auth()->refresh());
+                $this->respondWithToken(auth()->refresh());
+                return response()->json(['mensaje' => 'Su contraseña se cambio con ¡exito!.'],200);
             } else {
                 Log::channel('errores')->error('Contraseña inválida', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return response()->json(['mensaje' => 'Su contraseña anterior es inválida.'], 403);
