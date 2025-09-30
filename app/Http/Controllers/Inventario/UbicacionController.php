@@ -48,7 +48,6 @@ class UbicacionController extends Controller
                     'piso' => 'nullable|string',
                     'region' => 'nullable|string|max:255',
                     'capital' => 'nullable|string|max:255',
-                    'descripcion_id' => 'required|integer|exists:descripcion,id',
                     //'producto_id' => 'required|array|exists:productos,id',
                     'descripcion_id'=>'required|distinct|array|exists:descripcion,id',
                 ], [
@@ -134,7 +133,6 @@ class UbicacionController extends Controller
                     'piso' => 'nullable|string',
                     'region' => 'nullable|string|max:255',
                     'capital' => 'nullable|string|max:255',
-                    'descripcion_id' => 'required|integer|exists:descripcion,id',
                     //'producto_id' => 'required|array|exists:productos,id',
                     'descripcion_id'=>'required|distinct|array|exists:descripcion,id',
                 ], [
