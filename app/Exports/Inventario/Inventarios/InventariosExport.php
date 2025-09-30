@@ -39,7 +39,7 @@ class InventariosExport implements FromCollection, ShouldAutoSize, WithHeadings,
                 return $producto?->nombre;
             })->implode(',') ?? null, */
             'descripcion_id'=>$request->descripciones->map(function($descripcion){
-                return $descripcion?->marca. ' ' .$descripcion?->producto?->nombre;
+                return $descripcion?->serial. ' ' .$descripcion?->producto?->nombre;
             })->implode(',')??null,
         ];
     }

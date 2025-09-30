@@ -49,7 +49,7 @@ class AsignacionController extends Controller
                     'usuario_id' => 'required|integer|exists:usuarios,id',
                     'estatus_id' => 'required|integer|exists:estatus,id',
                     //'producto_id' => 'required|array|exists:productos,id',
-                    'descripcion_id'=>'required|array|exists:descripcion,id',
+                    'descripcion_id'=>'required|distinct|array|exists:descripcion,id',
                 ], [
                     'fecha_asignar.required' => 'La fecha de asignación es obligatoria',
                     'destino.string' => 'el destino tiene que ser un texto',
@@ -57,11 +57,21 @@ class AsignacionController extends Controller
                     'estatus_id.exists' => 'Estado no válido',
                     'descripcion_id.exists' => 'La descripcion especificado no existe',
                     'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
+                    'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
                     'usuario_id.exists' => 'El usuario especificado no existe',
                     //'producto_id.exists' => 'El producto especificado no existe',
                     //'producto_id.required' => 'El campo producto_id es obligatorio.',
                     //'producto_id.array' => 'El campo producto_id debe ser un número entero.',
                 ]);
+                $descripcion = Asignacion::with('descripciones')
+                    ->whereHas('descripciones', function ($query) use ($request) {
+                        $query->whereIn('descripcion_id', $request->descripcion_id);
+                    })->get()->count();
+                if($descripcion !== 0){
+                    Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado guardar por que está duplicado.", 404);
+                    return response()->json(['error'=>'No se ha logrado guardar por que está duplicado.'], 404);
+                }
                 $asignacion = Asignacion::create([
                     'fecha_asignar'=>$request->fecha_asignar,
                     'fecha_devolucion'=>$request->fecha_devolucion,
@@ -129,7 +139,7 @@ class AsignacionController extends Controller
                     'usuario_id' => 'required|integer|exists:usuarios,id',
                     'estatus_id' => 'required|integer|exists:estatus,id',
                     //'producto_id' => 'required|array|exists:productos,id',
-                    'descripcion_id'=>'required|array|exists:descripcion,id',
+                    'descripcion_id'=>'required|distinct|array|exists:descripcion,id',
                 ], [
                     'fecha_asignar.required' => 'La fecha de asignación es obligatoria',
                     'destino.string' => 'el destino tiene que ser un texto',
@@ -137,6 +147,7 @@ class AsignacionController extends Controller
                     'estatus_id.exists' => 'Estado no válido',
                     'descripcion_id.exists' => 'La descripcion especificado no existe',
                     'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
+                    'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
                     'usuario_id.exists' => 'El usuario especificado no existe',
                     //'producto_id.exists' => 'El producto especificado no existe',
                     //'producto_id.required' => 'El campo producto_id es obligatorio.',

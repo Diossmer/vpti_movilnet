@@ -56,12 +56,12 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
                 foreach ($descripciones as $descripcion_string) {
                     // Ejemplo de cómo manejar "n/a N/A" o strings con espacios
                     $parts = explode(' ', $descripcion_string);
-                    $marca = Str::lower($parts[0]);
+                    $serial = Str::lower($parts[0]);
                     unset($parts[0]);
                     $producto_nombre = Str::lower(implode(' ', $parts));
 
-                    // Busca la descripción usando la marca y el nombre del producto
-                    $descripcion = \App\Models\Inventario\Descripcion::where('marca', $marca)
+                    // Busca la descripción usando la serial y el nombre del producto
+                    $descripcion = \App\Models\Inventario\Descripcion::where('serial', $serial)
                         ->whereHas('producto', function($query) use ($producto_nombre) {
                             $query->where('nombre', $producto_nombre);
                         })

@@ -49,7 +49,7 @@ class EvaluacionesController extends Controller
                     'mantenimiento' => 'nullable|string|max:500',
                     'notas' => 'nullable|string|max:1000',
                     'estatus_id' => 'required|integer|exists:estatus,id',
-                    'descripcion_id'=>'required|array|exists:descripcion,id',
+                    'descripcion_id'=>'required|array|distinct|exists:descripcion,id',
                     //'producto_id' => 'required|array|exists:productos,id',
                 ],
                 [
@@ -59,8 +59,17 @@ class EvaluacionesController extends Controller
                     'estatus_id.exists' => 'El estatus seleccionado no es válido',
                     'descripcion_id.exists' => 'La descripción seleccionada no existe',
                     'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
+                    'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
                 ]);
-
+                $descripcion = Evaluaciones::with('descripciones')
+                    ->whereHas('descripciones', function ($query) use ($request) {
+                        $query->whereIn('descripcion_id', $request->descripcion_id);
+                    })->get()->count();
+                if($descripcion !== 0){
+                    Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado guardar por que está duplicado.", 404);
+                    return response()->json(['error'=>'No se ha logrado guardar por que está duplicado.'], 404);
+                }
                 $evaluacion = Evaluaciones::create([
                     'estado_fisico'=>$request->estado_fisico,
                     'escala'=>$request->escala,
@@ -129,7 +138,7 @@ class EvaluacionesController extends Controller
                     'mantenimiento' => 'nullable|string|max:500',
                     'notas' => 'nullable|string|max:1000',
                     'estatus_id' => 'required|integer|exists:estatus,id',
-                    'descripcion_id'=>'required|array|exists:descripcion,id',
+                    'descripcion_id'=>'required|array|distinct|exists:descripcion,id',
                     //'producto_id' => 'required|array|exists:productos,id',
                 ],
                 [
@@ -139,15 +148,14 @@ class EvaluacionesController extends Controller
                     'estatus_id.exists' => 'El estatus seleccionado no es válido',
                     'descripcion_id.exists' => 'La descripción seleccionada no existe',
                     'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
+                    'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
                 ]);
-
                 $evaluacion = Evaluaciones::with('estatus','descripciones.producto')->find($id);
                 if(is_null($evaluacion)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un evaluacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado actualizar un evaluacion.", 404);
                     return response()->json(['error'=>'No se ha logrado actualizar un evaluacion.'], 404);
                 }
-
                 $evaluacion->update([
                     //'estado_fisico'=>$request->estado_fisico,
                     'escala'=>$request->escala,

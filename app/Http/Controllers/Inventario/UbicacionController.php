@@ -50,7 +50,7 @@ class UbicacionController extends Controller
                     'capital' => 'nullable|string|max:255',
                     'descripcion_id' => 'required|integer|exists:descripcion,id',
                     //'producto_id' => 'required|array|exists:productos,id',
-                    'descripcion_id'=>'required|array|exists:descripcion,id',
+                    'descripcion_id'=>'required|distinct|array|exists:descripcion,id',
                 ], [
                     'region' => 'Región no válida. Opciones: Norte, Sur, Este, Oeste, Centro',
                     //'producto_id.exists' => 'El producto especificado no existe',
@@ -58,8 +58,17 @@ class UbicacionController extends Controller
                     //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                     'descripcion_id.exists' => 'La descripción seleccionada no existe',
                     'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
+                    'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
                 ]);
-
+                $descripcion = Ubicacion::with('descripciones')
+                    ->whereHas('descripciones', function ($query) use ($request) {
+                        $query->whereIn('descripcion_id', $request->descripcion_id);
+                    })->get()->count();
+                if($descripcion !== 0){
+                    Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado guardar por que está duplicado.", 404);
+                    return response()->json(['error'=>'No se ha logrado guardar por que está duplicado.'], 404);
+                }
                 $ubicacion = Ubicacion::create([
                     'origen'=>$request->origen,
                     'destino'=>$request->destino,
@@ -127,7 +136,7 @@ class UbicacionController extends Controller
                     'capital' => 'nullable|string|max:255',
                     'descripcion_id' => 'required|integer|exists:descripcion,id',
                     //'producto_id' => 'required|array|exists:productos,id',
-                    'descripcion_id'=>'required|array|exists:descripcion,id',
+                    'descripcion_id'=>'required|distinct|array|exists:descripcion,id',
                 ], [
                     'region' => 'Región no válida. Opciones: Norte, Sur, Este, Oeste, Centro',
                     //'producto_id.exists' => 'El producto especificado no existe',
@@ -135,8 +144,8 @@ class UbicacionController extends Controller
                     //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                     'descripcion_id.exists' => 'La descripción seleccionada no existe',
                     'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
+                    'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
                 ]);
-
                 $ubicacion = Ubicacion::with('descripciones.producto')->find($id);
                 if(is_null($ubicacion)){
                     Log::channel('sistema')->debug('No se ha logrado actualizar un ubicacion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);

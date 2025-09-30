@@ -48,7 +48,7 @@ class PerifericosController extends Controller
                     'observacion' => 'nullable|string',
                     'estatus_id' => 'required|exists:estatus,id',
                     //'producto_id' => 'required|array|exists:productos,id',
-                    'descripcion_id'=>'required|array|exists:descripcion,id',
+                    'descripcion_id'=>'required|array|distinct|exists:descripcion,id',
                 ], [
                     'cantidad_existente.required' => 'La cantidad existente es obligatoria',
                     'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
@@ -67,8 +67,18 @@ class PerifericosController extends Controller
                     //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                     'descripcion_id.exists' => 'La descripción seleccionada no existe',
                     'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
+                    'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
                 ]);
-
+                $descripcion = \App\Models\Inventario\Perifericos::with('descripciones')
+                    ->whereHas('descripciones', function ($query) use ($request) {
+                        $query->whereIn('descripcion_id', $request->descripcion_id);
+                    })
+                    ->get()->count();
+                if($descripcion !== 0){
+                    Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado guardar por que está duplicado.", 404);
+                    return response()->json(['error'=>'No se ha logrado guardar por que está duplicado.'], 404);
+                }
                 $perifericos = Perifericos::create([
                     'cantidad_existente'=>$request->cantidad_existente,
                     'entrada'=>$request->entrada,
@@ -134,7 +144,7 @@ class PerifericosController extends Controller
                     'observacion' => 'nullable|string',
                     'estatus_id' => 'required|exists:estatus,id',
                     //'producto_id' => 'required|array|exists:productos,id',
-                    'descripcion_id'=>'required|array|exists:descripcion,id',
+                    'descripcion_id'=>'required|array|distinct|exists:descripcion,id',
                 ], [
                     'cantidad_existente.required' => 'La cantidad existente es obligatoria',
                     'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
@@ -153,6 +163,7 @@ class PerifericosController extends Controller
                     //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
                     'descripcion_id.exists' => 'La descripción seleccionada no existe',
                     'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
+                    'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
                 ]);
 
                 $perifericos = Perifericos::with('estatus','descripciones.producto')->find($id);
