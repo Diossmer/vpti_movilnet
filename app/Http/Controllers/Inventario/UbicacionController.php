@@ -59,14 +59,15 @@ class UbicacionController extends Controller
                     'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
                     'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
                 ]);
-                $descripcion = Ubicacion::with('descripciones')
+                $ubicaciones = Ubicacion::with('descripciones')
                     ->whereHas('descripciones', function ($query) use ($request) {
                         $query->whereIn('descripcion_id', $request->descripcion_id);
-                    })->get()->count();
-                if($descripcion !== 0){
-                    Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
-                    throw new Exception("No se ha logrado guardar por que está duplicado.", 404);
-                    return response()->json(['error'=>'No se ha logrado guardar por que está duplicado.'], 404);
+                    })->get();
+                if($ubicaciones->isNotEmpty()){
+                    $seriales = $ubicaciones->flatMap(fn ($u) => $u->descripciones)->pluck('serial')->unique()->implode(', ');
+                    Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['seriales_duplicados' => $seriales,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado guardar. Serial duplicado: {$seriales}", 400);
+                    return response()->json(['error' => "No se ha logrado guardar. Serial duplicado: {$seriales}"], 400); 
                 }
                 $ubicacion = Ubicacion::create([
                     'origen'=>$request->origen,
