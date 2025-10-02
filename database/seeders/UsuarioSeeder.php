@@ -71,6 +71,14 @@ class UsuarioSeeder extends Seeder
             'descripcion' => 'En revisión del sistema',
         ]);
         Estatus::create([
+            'nombre' => 'Rechazado',
+            'descripcion' => 'Rechazado del sistema',
+        ]);
+        Estatus::create([
+            'nombre' => 'Aprobado',
+            'descripcion' => 'Aprobado del sistema',
+        ]);
+        Estatus::create([
             'nombre' => 'Pendiente',
             'descripcion' => 'Pendiente de revisión',
         ]);
