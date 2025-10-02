@@ -32,7 +32,11 @@ class AuthController extends Controller
                 Log::channel('errores')->error('No está autorizado.', ['fecha_hora' => now()->toDateTimeString()]);
                 return response()->json(['error' => 'No esta autorizado'], 401);
             }
-            $usuario =auth('api')->setToken($token)->user()->load('estatus','rol','productos','asignaciones');
+            $usuario=auth('api')->setToken($token)->user()->load('estatus','rol','productos','asignaciones');
+            if($usuario->estatus->nombre !== 'Activo' && $usuario->estatus->nombre !== 'activo'){ 
+                Log::channel('errores')->error('No esta autorizado por el administrador.', ['fecha_hora' => now()->toDateTimeString()]);
+                return response()->json(['error' => 'No esta autorizado por el administrador.'], 401);
+            }
             $token = Auth::login($usuario);
             Log::channel('usuario')->info('Usuario logeado.', [
                 'usuario' => $usuario->usuario,

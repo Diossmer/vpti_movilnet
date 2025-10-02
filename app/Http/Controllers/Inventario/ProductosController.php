@@ -55,7 +55,7 @@ class ProductosController extends Controller
 
                 $productos = Productos::create([
                     'nombre'=>$request->nombre,
-                    'usuario_id'=>(Auth::id()===1)?$request->usuario_id:Auth::id(),
+                    'usuario_id'=>Auth::id(),
                     'estatus_id'=>$request->estatus_id,
                 //])->load(['descripciones','inventarios','perifericos','evaluaciones','asignaciones','ubicaciones', 'usuario', 'estatus']);
                 ])->load(['descripciones', 'usuario', 'estatus']);
