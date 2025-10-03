@@ -48,7 +48,7 @@ class DescripcionesImport implements ToCollection, WithHeadingRow, WithBatchInse
                         'dispositivo' => Str::lower(trim($row['dispositivo'])) ?? null,
                         'serial' => Str::lower(trim($row['serial'])) ?? null,
                         'marca' => Str::lower(trim($row['marca'])) ?? null,
-                        'codigo_inv' => Str::lower(trim($row['codigo_inv'])) ?? null,
+                        'codigo_inv' => Str::upper(trim($row['codigo_inv'])) ?? null,
                         'observacion' => Str::lower(trim($row['observacion'])) ?? null,
                     ]
                 );

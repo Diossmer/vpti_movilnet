@@ -56,7 +56,7 @@ class EvaluacionesImport implements ToCollection, WithHeadingRow, WithBatchInser
                 );
                 /* $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
                 $evaluacion->productos()->sync($productosID); */
-                $descripcionID = \App\Models\Inventario\Descripcion::whereIn('marca',array_map('Str::lower', array_map('trim', explode(',', $row['descripciones']))))->get()->pluck('id')->toArray();
+                $descripcionID = \App\Models\Inventario\Descripcion::whereIn('serial',array_map('Str::lower', array_map('trim', explode(',', $row['descripciones']))))->get()->pluck('id')->toArray();
                 $evaluacion->descripciones()->sync($descripcionID);
                 $this->registrosCargados++;
             } catch (QueryException $e) {

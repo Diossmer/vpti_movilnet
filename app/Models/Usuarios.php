@@ -23,6 +23,7 @@ class Usuarios extends Authenticatable implements JWTSubject
         'direccion',
         'ciudad',
         'estado',
+        'cargo',
         'codigo_postal',
         'telefono_casa',
         'telefono_celular',

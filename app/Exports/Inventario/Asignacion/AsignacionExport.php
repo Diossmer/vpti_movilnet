@@ -40,7 +40,7 @@ class AsignacionExport implements FromCollection, ShouldAutoSize, WithHeadings, 
             'estatus_id'=>$request->estatus?->nombre??null,
             'usuario_id'=>$request->usuario->usuario??null,
             'descripcion_id'=>$request->descripciones->map(function($descripcion){
-                return $descripcion?->marca;
+                return $descripcion?->serial;
             })->implode(',')??null,
         ];
     }

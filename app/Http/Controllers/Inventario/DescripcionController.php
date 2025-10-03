@@ -44,7 +44,7 @@ class DescripcionController extends Controller
                 $request->validate([
                     'codigo' => 'nullable|string|max:255',
                     'modelo' => 'required|string|max:255',
-                    'dispositivo' => 'required|string|max:255',
+                    'dispositivo' => 'nullable|string|max:255',
                     'serial' => 'required|string|max:255',
                     'marca' => 'required|string|max:255',
                     'codigo_inv' => 'nullable|string|max:255',
@@ -127,7 +127,7 @@ class DescripcionController extends Controller
                 $request->validate([
                     'codigo' => 'nullable|string|max:255',
                     'modelo' => 'required|string|max:255',
-                    'dispositivo' => 'required|string|max:255',
+                    'dispositivo' => 'nullable|string|max:255',
                     'serial' => 'required|string|max:255',
                     'marca' => 'required|string|max:255',
                     'codigo_inv' => 'nullable|string|max:255',

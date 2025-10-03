@@ -31,8 +31,8 @@ return new class extends Migration
         Schema::create('productos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre')->unique();
-            $table->foreignId('usuario_id')->nullable()->constrained('usuarios')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('estatus_id')->nullable()->constrained('estatus')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('usuario_id')->nullable()->constrained('usuarios')->onUpdate('cascade');//->onDelete('cascade');
+            $table->foreignId('estatus_id')->nullable()->constrained('estatus')->onUpdate('cascade');//->onDelete('cascade');
             $table->timestamps();
         });
 

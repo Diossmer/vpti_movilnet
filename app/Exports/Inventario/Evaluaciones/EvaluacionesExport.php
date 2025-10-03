@@ -40,7 +40,7 @@ class EvaluacionesExport implements FromCollection, ShouldAutoSize, WithHeadings
             })->implode(',')??null, */
             'estatus_id'=>$request->estatus?->nombre??null,
             'descripcion_id'=>$request->descripciones->map(function($descripcion){
-                return $descripcion?->marca;
+                return $descripcion?->serial;
             })->implode(',')??null,
         ];
     }

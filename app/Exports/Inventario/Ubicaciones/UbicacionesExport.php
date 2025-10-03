@@ -40,7 +40,7 @@ class UbicacionesExport implements FromCollection, ShouldAutoSize, WithHeadings,
                 return $producto?->nombre;
             })->implode(',') ?? null, */
             'descripcion_id'=>$request->descripciones->map(function($descripcion){
-                return $descripcion?->marca;
+                return $descripcion?->serial;
             })->implode(',')??null,
         ];
     }

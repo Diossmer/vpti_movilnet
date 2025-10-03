@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('direccion')->nullable();
             $table->string('ciudad')->nullable();
             $table->string('estado')->nullable();
+            $table->string('cargo')->nullable();
             $table->string('telefono_casa')->nullable();
             $table->string('telefono_celular')->nullable();
             $table->string('telefono_alternativo')->nullable();

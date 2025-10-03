@@ -56,6 +56,7 @@ class UsuariosController extends Controller
                     'direccion' => 'nullable|string|max:500',
                     'ciudad' => 'nullable|string|max:255',
                     'estado' => 'nullable|string|max:255',
+                    'cargo' => 'nullable|string|max:255',
                     'telefono_casa' => 'nullable|string|max:15',
                     'telefono_celular' => 'required|string|max:15',
                     'telefono_alternativo' => 'nullable|string|max:15',
@@ -97,6 +98,7 @@ class UsuariosController extends Controller
                     'direccion'=>$request->direccion,
                     'ciudad'=>$request->ciudad,
                     'estado'=>$request->estado,
+                    'cargo'=>$request->cargo,
                     'telefono_casa'=>$request->telefono_casa,
                     'telefono_celular'=>$request->telefono_celular,
                     'telefono_alternativo'=>$request->telefono_alternativo,
@@ -160,12 +162,13 @@ class UsuariosController extends Controller
                 $request->validate([
                     'nombre' => 'required|string|max:255',
                     'apellido' => 'required|string|max:255',
-                    'cedula' => 'required|string|max:20|unique:usuarios,cedula,'.$id,
-                    'usuario' => 'required|string|max:255|unique:usuarios,usuario,'.$id,
-                    'correo' => 'required|email|max:255|unique:usuarios,correo,'.$id,
+                    'cedula' => 'required|string|max:20|unique:usuarios,cedula',
+                    'usuario' => 'required|string|max:255|unique:usuarios,usuario',
+                    'correo' => 'required|email|max:255|unique:usuarios,correo',
                     'direccion' => 'nullable|string|max:500',
                     'ciudad' => 'nullable|string|max:255',
                     'estado' => 'nullable|string|max:255',
+                    'cargo' => 'nullable|string|max:255',
                     'telefono_casa' => 'nullable|string|max:15',
                     'telefono_celular' => 'required|string|max:15',
                     'telefono_alternativo' => 'nullable|string|max:15',
@@ -259,7 +262,8 @@ class UsuariosController extends Controller
                     return response()->json(['error' => 'No está permitido eliminar al administrador principal.'], 403); // 403 Forbidden
                 }
                 Log::channel('usuario')->info('Se eliminó correctamente.'.$usuario,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
-
+                $usuario->productos()->update(['usuario_id' => null]);
+                $usuario->asignaciones()->update(['usuario_id' => null]);
                 $usuario->destroy($id);
 
                 return response()->json(['mensaje'=>'Se eliminó correctamente.'], 200);
@@ -279,7 +283,7 @@ class UsuariosController extends Controller
     public function exportar(?string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Usuarios::with('estatus','rol','productos','asignaciones')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Usuarios::with('estatus','rol','productos','asignaciones.descripciones')->where('id','=',$id)->get()->makeHidden(['id']));
                 if(!$data){
                     Log::channel('sistema')->debug('No se ha logrado exportar un usuario. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado exportar un usuario.", 404);
@@ -287,7 +291,7 @@ class UsuariosController extends Controller
                 Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Usuarios::with('estatus','rol','productos','asignaciones')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Usuarios::with('estatus','rol','productos','asignaciones.descripciones')->get()->makeHidden(['id']));
             if(!$data){
                 Log::channel('sistema')->debug('No se ha logrado exportar un usuario. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 throw new Exception("No se ha logrado exportar un usuario.", 404);

@@ -186,6 +186,7 @@ Administración de colas: Gestionar las "colas" de trabajo relacionadas con los 
             'direccion'=>'av.prueba,dep.prueba,res.prueba.',
             'ciudad'=>'distrito capital',
             'estado'=>'caracas',
+            'cargo'=>'SuperUsuario',
             'codigo_postal'=>'1088',
             'telefono_casa'=>'02120000000',
             'telefono_celular'=>'04160000000',

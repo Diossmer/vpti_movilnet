@@ -53,6 +53,7 @@ class UsuariosImport implements ToCollection, WithHeadingRow, WithBatchInserts, 
                         'direccion' => Str::lower(trim($row["direccion"])) ?? null,
                         'ciudad' => Str::lower(trim($row["ciudad"])) ?? null,
                         'estado' => Str::lower(trim($row["estado"])) ?? null,
+                        'cargo' => Str::lower(trim($row["cargo"])) ?? null,
                         'codigo_postal' => $row["codigo_postal"] ?? null,
                         'telefono_casa' => $row["telefono_casa"] ?? null,
                         'telefono_celular' => $row["telefono_celular"] ?? null,
@@ -61,18 +62,43 @@ class UsuariosImport implements ToCollection, WithHeadingRow, WithBatchInserts, 
                         'estatus_id' => \App\Models\Estatus::where('nombre','=',$row['estatus'])->first()->id ?? null,
                         'rol_id' => \App\Models\Roles::where('nombre','=',$row['rol'])->first()->id ?? null,
                     ]
-                );
+                );                
                 // Desvincula todos los productos y asignaciones del usuario
                 \App\Models\Inventario\Productos::where('usuario_id', $usuario->id)->update(['usuario_id' => null]);
                 \App\Models\Inventario\Asignacion::where('usuario_id', $usuario->id)->update(['usuario_id' => null]);
 
                 // Vincula los productos al usuario de forma masiva
-                \App\Models\Inventario\Productos::whereIn('nombre', array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))
-                    ->update(['usuario_id' => $usuario->id]);
+                // Aseguramos que $row['productos'] no sea null antes de usarlo
+                $productos = array_map('Str::lower', array_map('trim', explode(',', $row['productos'] ?? '')));
+                
+                // Filtramos cualquier cadena vacía resultante de la manipulación
+                $productos = array_filter($productos); 
+
+                if (!empty($productos)) {
+                    \App\Models\Inventario\Productos::whereIn('nombre', $productos)
+                        ->update(['usuario_id' => $usuario->id]);
+                }
 
                 // Vincula las asignaciones al usuario de forma masiva
-                \App\Models\Inventario\Asignacion::whereIn('destino', array_map('Str::lower', array_map('trim', explode(',', $row['asignaciones']))))
+                // NOTA: $asignaciones AHORA DEBE CONTENER LOS SERIALES (si no, el nombre de la columna debe ser ajustado en el Excel).
+                $seriales_a_vincular = array_map('Str::lower', array_map('trim', explode(',', $row['asignaciones'] ?? '')));
+
+                // 1. Filtrar cualquier cadena vacía resultante
+                $seriales_a_vincular = array_filter($seriales_a_vincular); 
+
+                // 2. Ejecutar la vinculación usando whereHas
+                if (!empty($seriales_a_vincular)) {
+                    \App\Models\Inventario\Asignacion::whereHas('descripciones', function ($query) use ($seriales_a_vincular) {
+                        // CORRECCIÓN: Usamos la relación 'descripciones' (BelongsToMany)
+                        // y buscamos en la columna 'serial' (asumiendo que así se llama en la tabla 'descripcions')
+                        $query->whereIn('serial', $seriales_a_vincular);
+                    })
                     ->update(['usuario_id' => $usuario->id]);
+                } else {
+                    // Opcional: Log para ver cuándo se salta la actualización
+                    Log::debug("Asignaciones saltadas: Valor de 'asignaciones' vacío para usuario ID: " . $usuario->id);
+                }
+
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {

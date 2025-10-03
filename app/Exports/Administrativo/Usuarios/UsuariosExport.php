@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class UsuariosExport implements FromCollection, ShouldAutoSize, WithHeadings, WithStyles, WithTitle, WithMapping
 {
@@ -38,6 +39,7 @@ class UsuariosExport implements FromCollection, ShouldAutoSize, WithHeadings, Wi
             'direccion'=>$request->direccion??null,
             'ciudad'=>$request->ciudad??null,
             'estado'=>$request->estado??null,
+            'cargo'=>$request->cargo??null,
             'telefono_casa'=>$request->telefono_casa??null,
             'telefono_celular'=>$request->telefono_celular??null,
             'telefono_alternativo'=>$request->telefono_alternativo??null,
@@ -48,7 +50,9 @@ class UsuariosExport implements FromCollection, ShouldAutoSize, WithHeadings, Wi
                 return $producto?->nombre;
             })->implode(',') ?? null,
             'asignaciones'=>$request->asignaciones->map(function($asignacion){
-                return $asignacion?->destino;
+                return $asignacion?->descripciones->map(function($asignacion){
+                    return $asignacion?->serial;
+                })->implode(',') ?? null;
             })->implode(',') ?? null,
         ];
     }
