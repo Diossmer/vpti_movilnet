@@ -110,7 +110,7 @@ class AuthController extends Controller
     {
         $usuario = auth()->user();
         if (!$usuario) {
-            Log::channel('sistema')->debug('refrescarPerfil: No hay sesión activa', ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('sistema')->debug('refrescarPerfil: No hay sesión activa', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error' => 'No hay sesión activa'], 401);
         }
 

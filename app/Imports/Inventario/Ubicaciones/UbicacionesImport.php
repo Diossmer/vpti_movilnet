@@ -57,13 +57,13 @@ class UbicacionesImport implements ToCollection, WithHeadingRow, WithBatchInsert
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
-                    Log::warning("Registro duplicado: descripcion {$row['descripcion']}");
+                    Log::warning("Registro duplicado: descripcion {$row['descripcion']}", ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
                     $this->registrosFallidos++;
                     continue;
                 }
                 throw $e;
             } catch (\Exception $e) {
-                Log::error("Error al procesar la fila: " . $e->getMessage());
+                Log::error("Error al procesar la fila: ", [$e->getMessage(), 'fecha_hora' => now()->toDateTimeString(), Auth::user()]);
                 $this->registrosFallidos++;
                 continue;
             }

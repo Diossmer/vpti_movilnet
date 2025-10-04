@@ -32,7 +32,7 @@ class DescripcionController extends Controller
                 throw new Exception("no esta autorizado.", 401);
             }
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -94,7 +94,7 @@ class DescripcionController extends Controller
             Log::channel('sistema')->debug('Validacion de Descripcion: '.$e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -115,7 +115,7 @@ class DescripcionController extends Controller
                 throw new Exception("no esta autorizado.", 401);
             }
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -178,7 +178,7 @@ class DescripcionController extends Controller
             Log::channel('sistema')->debug('Validacion de Descripcion: '.$e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -203,7 +203,7 @@ class DescripcionController extends Controller
                 throw new Exception("no esta autorizado.", 401);
             }
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }

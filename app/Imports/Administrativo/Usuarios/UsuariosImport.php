@@ -102,14 +102,14 @@ class UsuariosImport implements ToCollection, WithHeadingRow, WithBatchInserts, 
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
-                    Log::warning("Registro duplicado: Cédula {$row['cedula']}, Usuario {$row['usuario']}, Correo {$row['correo']}");
+                    Log::warning("Registro duplicado: Cédula {$row['cedula']}, Usuario {$row['usuario']}, Correo {$row['correo']}", ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
                     $this->registrosFallidos++;
                     continue;
                 }
                 throw $e; // Lanza otras excepciones
             } catch (\Exception $e) {
                 // Maneja otros errores (por ejemplo, validaciones)
-                Log::error("Error al procesar la fila: " . $e->getMessage());
+                Log::error("Error al procesar la fila: ", [$e->getMessage(), 'fecha_hora' => now()->toDateTimeString(), Auth::user()]);
                 $this->registrosFallidos++;
                 continue;
             }

@@ -33,10 +33,14 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
     {
         foreach ($rows as $row) {
             try {
-                if (empty($row["cantidad_existente"]) || empty($row['descripciones'])) {
+                // 1. Aseguramos que 'descripciones' se lee como una cadena (string) para evitar errores con explode()
+                $rawDescriptions = $row['descripciones'] ?? ''; 
+
+                if (empty($row["cantidad_existente"]) || empty($rawDescriptions)) {
                     $this->registrosPendientes++;
                     throw new \Exception("Fila inválida: cantidad_existente o descripciones están vacíos.");
                 }
+                
                 $perifericos = \App\Models\Inventario\Perifericos::updateOrCreate(
                     [
                         'cantidad_existente' => $row["cantidad_existente"]?? 0,
@@ -48,41 +52,30 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
                         'estatus_id' => \App\Models\Estatus::where('nombre','=',$row['estatus'])->first()->id ?? null,
                     ]
                 );
-                /* $productosID = \App\Models\Inventario\Productos::whereIn('nombre',array_map('Str::lower', array_map('trim', explode(',', $row['productos']))))->get()->pluck('id')->toArray();
-                $perifericos->productos()->sync($productosID); */
-                $descripcionID = [];
-                $descripciones = array_map('trim', explode(',', $row['descripciones']));
-
-                foreach ($descripciones as $descripcion_string) {
-                    // Ejemplo de cómo manejar "n/a N/A" o strings con espacios
-                    $parts = explode(' ', $descripcion_string);
-                    $serial = Str::lower($parts[0]);
-                    unset($parts[0]);
-                    $producto_nombre = Str::lower(implode(' ', $parts));
-
-                    // Busca la descripción usando la serial y el nombre del producto
-                    $descripcion = \App\Models\Inventario\Descripcion::where('serial', $serial)
-                        ->whereHas('producto', function($query) use ($producto_nombre) {
-                            $query->where('nombre', $producto_nombre);
-                        })
-                        ->first();
-
-                    if ($descripcion) {
-                        $descripcionID[] = $descripcion->id;
-                    }
-                }
-                // Ahora puedes usar el array de IDs
+                
+                // 2. Procesar los seriales de la cadena $rawDescriptions
+                $serials = array_filter(array_map(function ($serial) {
+                    return Str::lower(trim($serial));
+                }, explode(',', $rawDescriptions)));
+                
+                // 3. Buscar IDs de las descripciones (solo por serial)
+                $descripcionID = \App\Models\Inventario\Descripcion::whereIn('serial', $serials)
+                    ->pluck('id')
+                    ->toArray();
+                
+                // 4. Sincronizar (He asumido que 'evaluacion' era un typo y debe ser $perifericos)
                 $perifericos->descripciones()->sync($descripcionID);
+                
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
-                    Log::warning("Registro duplicado: cantidad_existente {$row['cantidad_existente']}");
+                    Log::warning("Registro duplicado: cantidad_existente {$row['cantidad_existente']}", ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
                     $this->registrosFallidos++;
                     continue;
                 }
                 throw $e;
             } catch (\Exception $e) {
-                Log::error("Error al procesar la fila: " . $e->getMessage());
+                Log::error("Error al procesar la fila: ", [$e->getMessage(), 'fecha_hora' => now()->toDateTimeString(), Auth::user()]);
                 $this->registrosFallidos++;
                 continue;
             }
@@ -107,10 +100,15 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
     public function rules(): array
     {
         return [
-            '*.cantidad_existente' => ['required','unique:perifericos,cantidad_existente'],
+            // He quitado el unique para 'cantidad_existente' de aquí ya que lo estás manejando en updateOrCreate
+            '*.cantidad_existente' => 'required',
             '*.observacion' => 'nullable|string|max:500',
+            // Asegúrate que la columna 'descripciones' existe
+            '*.descripciones' => 'required|string', 
         ];
     }
+    
+    // ... (rest of the methods: customValidationMessages, getRegistrosCargados, etc. remain unchanged)
 
     public function customValidationMessages()
     {

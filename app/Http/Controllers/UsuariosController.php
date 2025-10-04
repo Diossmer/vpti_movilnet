@@ -34,7 +34,7 @@ class UsuariosController extends Controller
                 throw new \Exception("no esta autorizado.", 401);
             }
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -122,7 +122,7 @@ class UsuariosController extends Controller
             Log::channel('sistema')->debug('Validacion de Usuarios: '.$e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -147,7 +147,7 @@ class UsuariosController extends Controller
                 throw new \Exception("no esta autorizado.", 401);
             }
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -162,9 +162,9 @@ class UsuariosController extends Controller
                 $request->validate([
                     'nombre' => 'required|string|max:255',
                     'apellido' => 'required|string|max:255',
-                    'cedula' => 'required|string|max:20|unique:usuarios,cedula',
-                    'usuario' => 'required|string|max:255|unique:usuarios,usuario',
-                    'correo' => 'required|email|max:255|unique:usuarios,correo',
+                    'cedula' => 'required|string|max:20|unique:usuarios,cedula,'.$id,
+                    'usuario' => 'required|string|max:255|unique:usuarios,usuario,'.$id,
+                    'correo' => 'required|email|max:255|unique:usuarios,correo,'.$id,
                     'direccion' => 'nullable|string|max:500',
                     'ciudad' => 'nullable|string|max:255',
                     'estado' => 'nullable|string|max:255',
@@ -234,7 +234,7 @@ class UsuariosController extends Controller
             Log::channel('sistema')->debug('Validacion de Usuarios: '.$e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -272,7 +272,7 @@ class UsuariosController extends Controller
                 throw new \Exception("no esta autorizado.", 401);
             }
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }

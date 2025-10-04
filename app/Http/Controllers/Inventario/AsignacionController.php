@@ -32,7 +32,7 @@ class AsignacionController extends Controller
                 throw new Exception("no esta asignacion.", 401);
             }
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -102,7 +102,7 @@ class AsignacionController extends Controller
             Log::channel('sistema')->debug('Validacion de asignacion: '.$e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -123,7 +123,7 @@ class AsignacionController extends Controller
                 throw new Exception("no esta asignacion.", 401);
             }
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -184,7 +184,7 @@ class AsignacionController extends Controller
             Log::channel('sistema')->debug('Validacion de Asignacion: '.$e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -209,7 +209,7 @@ class AsignacionController extends Controller
                 throw new Exception("no esta asignacion.", 401);
             }
         } catch (\Exception $e) {
-            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString()]);
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
