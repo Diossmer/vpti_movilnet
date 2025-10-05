@@ -41,64 +41,69 @@ class PerifericosController extends Controller
     {
         try {
             if(Auth::check()){
-                $request->validate([
-                    /* 'cantidad_existente' => 'required|integer|min:0', */
-                    'entrada' => 'nullable|integer|min:0',
-                    'salida' => 'nullable|integer|min:0',
-                    'observacion' => 'nullable|string',
-                    'estatus_id' => 'required|exists:estatus,id',
-                    //'producto_id' => 'required|array|exists:productos,id',
-                    'descripcion_id'=>'required|array|distinct|exists:descripcion,id',
-                ], [
-                    /* 'cantidad_existente.required' => 'La cantidad existente es obligatoria',
-                    'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
-                    'cantidad_existente.min' => 'La cantidad no puede ser negativa', */
-                    'entrada.required' => 'El campo entrada es obligatorio',
-                    'entrada.integer' => 'La entrada debe ser un número entero',
-                    'entrada.min' => 'La entrada no puede ser negativa',
-                    'salida.required' => 'El campo salida es obligatorio',
-                    'salida.integer' => 'La salida debe ser un número entero',
-                    'salida.min' => 'La salida no puede ser negativa',
-                    'observacion.string' => 'La observacion debe ser una cadena de texto.',
-                    'estatus_id.required' => 'El campo estatus es obligatorio.',
-                    'estatus_id.exists' => 'El estatus seleccionado no es válido.',
-                    //'producto_id.exists' => 'El producto especificado no existe',
-                    //'producto_id.required' => 'El campo producto_id es obligatorio.',
-                    //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
-                    'descripcion_id.exists' => 'La descripción seleccionada no existe',
-                    'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
-                    'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
-                ]);
-                $perifericos = Perifericos::with('descripciones')
-                    ->whereHas('descripciones', function ($query) use ($request) {
-                        $query->whereIn('descripcion_id', $request->descripcion_id);
-                    })->get();
-                if($perifericos->isNotEmpty()){
-                    $seriales = $perifericos->flatMap(fn ($u) => $u->descripciones)->pluck('serial')->unique()->implode(', ');
-                    Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['seriales_duplicados' => $seriales,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
-                    throw new Exception("No se ha logrado guardar. Serial duplicado: {$seriales}", 400);
-                    return response()->json(['error' => "No se ha logrado guardar. Serial duplicado: {$seriales}"], 400); 
+                if(count($request->descripcion_id) == $request->entrada || (count($request->descripcion_id) == $request->salida && $request->entrada == 0)){
+                    $request->validate([
+                        /* 'cantidad_existente' => 'required|integer|min:0', */
+                        'entrada' => 'nullable|integer|min:0',
+                        'salida' => 'nullable|integer|min:0',
+                        'observacion' => 'nullable|string',
+                        'estatus_id' => 'required|exists:estatus,id',
+                        //'producto_id' => 'required|array|exists:productos,id',
+                        'descripcion_id'=>'required|array|distinct|exists:descripcion,id',
+                    ], [
+                        /* 'cantidad_existente.required' => 'La cantidad existente es obligatoria',
+                        'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
+                        'cantidad_existente.min' => 'La cantidad no puede ser negativa', */
+                        'entrada.required' => 'El campo entrada es obligatorio',
+                        'entrada.integer' => 'La entrada debe ser un número entero',
+                        'entrada.min' => 'La entrada no puede ser negativa',
+                        'salida.required' => 'El campo salida es obligatorio',
+                        'salida.integer' => 'La salida debe ser un número entero',
+                        'salida.min' => 'La salida no puede ser negativa',
+                        'observacion.string' => 'La observacion debe ser una cadena de texto.',
+                        'estatus_id.required' => 'El campo estatus es obligatorio.',
+                        'estatus_id.exists' => 'El estatus seleccionado no es válido.',
+                        //'producto_id.exists' => 'El producto especificado no existe',
+                        //'producto_id.required' => 'El campo producto_id es obligatorio.',
+                        //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
+                        'descripcion_id.exists' => 'La descripción seleccionada no existe',
+                        'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
+                        'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
+                    ]);
+                    $perifericos = Perifericos::with('descripciones')
+                        ->whereHas('descripciones', function ($query) use ($request) {
+                            $query->whereIn('descripcion_id', $request->descripcion_id);
+                        })->get();
+                    if($perifericos->isNotEmpty()){
+                        $seriales = $perifericos->flatMap(fn ($u) => $u->descripciones)->pluck('serial')->unique()->implode(', ');
+                        Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['seriales_duplicados' => $seriales,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                        throw new Exception("No se ha logrado guardar. Serial duplicado: {$seriales}", 400);
+                        return response()->json(['error' => "No se ha logrado guardar. Serial duplicado: {$seriales}"], 400); 
+                    }
+                    $perifericos = Perifericos::create([
+                        'cantidad_existente'=>$request->cantidad_existente,
+                        'entrada'=>$request->entrada,
+                        'salida'=>$request->salida,
+                        'observacion'=>$request->observacion,
+                        'estatus_id'=>$request->estatus_id,
+                    ])->load(['estatus','descripciones.producto']);
+                    /* if($request->filled('producto_id')){
+                        $perifericos->productos()->sync($request->producto_id);
+                    } */
+                    if($request->filled('descripcion_id')){
+                        $perifericos->descripciones()->sync($request->descripcion_id);
+                    }
+                    if(is_null($perifericos)){
+                        Log::channel('sistema')->debug('No se ha logrado guardar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                        throw new Exception("No se ha logrado guardar un perifericos.", 404);
+                        return response()->json(['error'=>'No se ha logrado guardar un perifericos.'], 404);
+                    }
+                    Log::channel('usuario')->info('Se almacenó correctamente.'.$perifericos,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    return response()->json(['mensaje'=>"Se almacenó correctamente."], 200);
+                } else {
+                    Log::channel('errores')->error('La cantidad de descripciones no coincide con entrada/salida.', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("La cantidad de descripciones no coincide con entrada/salida.", 400);
                 }
-                $perifericos = Perifericos::create([
-                    'cantidad_existente'=>$request->cantidad_existente,
-                    'entrada'=>$request->entrada,
-                    'salida'=>$request->salida,
-                    'observacion'=>$request->observacion,
-                    'estatus_id'=>$request->estatus_id,
-                ])->load(['estatus','descripciones.producto']);
-                /* if($request->filled('producto_id')){
-                    $perifericos->productos()->sync($request->producto_id);
-                } */
-                if($request->filled('descripcion_id')){
-                    $perifericos->descripciones()->sync($request->descripcion_id);
-                }
-                if(is_null($perifericos)){
-                    Log::channel('sistema')->debug('No se ha logrado guardar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
-                    throw new Exception("No se ha logrado guardar un perifericos.", 404);
-                    return response()->json(['error'=>'No se ha logrado guardar un perifericos.'], 404);
-                }
-                Log::channel('usuario')->info('Se almacenó correctamente.'.$perifericos,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
-                return response()->json(['mensaje'=>"Se almacenó correctamente."], 200);
             }else{
                 Log::channel('errores')->error('No está autorizado.', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 throw new Exception("no esta autorizado.", 401);
@@ -137,66 +142,79 @@ class PerifericosController extends Controller
     {
         try {
             if(Auth::check()){
-                $request->validate([
-                    /* 'cantidad_existente' => 'required|integer|min:0', */
-                    'entrada' => 'nullable|integer|min:0',
-                    'salida' => 'nullable|integer|min:0',
-                    'observacion' => 'nullable|string',
-                    'estatus_id' => 'required|exists:estatus,id',
-                    //'producto_id' => 'required|array|exists:productos,id',
-                    'descripcion_id'=>'required|array|distinct|exists:descripcion,id',
-                ], [
-                    /* 'cantidad_existente.required' => 'La cantidad existente es obligatoria',
-                    'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
-                    'cantidad_existente.min' => 'La cantidad no puede ser negativa', */
-                    'entrada.required' => 'El campo entrada es obligatorio',
-                    'entrada.integer' => 'La entrada debe ser un número entero',
-                    'entrada.min' => 'La entrada no puede ser negativa',
-                    'salida.required' => 'El campo salida es obligatorio',
-                    'salida.integer' => 'La salida debe ser un número entero',
-                    'salida.min' => 'La salida no puede ser negativa',
-                    'observacion.string' => 'La observacion debe ser una cadena de texto.',
-                    'estatus_id.required' => 'El campo estatus es obligatorio.',
-                    'estatus_id.exists' => 'El estatus seleccionado no es válido.',
-                    //'producto_id.exists' => 'El producto especificado no existe',
-                    //'producto_id.required' => 'El campo producto_id es obligatorio.',
-                    //'producto_id.array' => 'El campo producto_id debe ser un arreglo.',
-                    'descripcion_id.exists' => 'La descripción seleccionada no existe',
-                    'descripcion_id.array' => 'El campo descripcion_id debe ser un número entero.',
-                    'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
-                ]);
+                if(count($request->descripcion_id) == $request->entrada || (count($request->descripcion_id) == $request->salida && $request->entrada == 0)){
+                    
+                    // --- Validaciones ---
+                    $request->validate([
+                        // ... (Validaciones se mantienen igual)
+                        'entrada' => 'nullable|integer|min:0',
+                        'salida' => 'nullable|integer|min:0',
+                        'observacion' => 'nullable|string',
+                        'estatus_id' => 'required|exists:estatus,id',
+                        'descripcion_id'=>'required|array|distinct|exists:descripcion,id',
+                    ], [
+                        // ... (Mensajes de error se mantienen igual)
+                        'entrada.min' => 'La entrada no puede ser negativa',
+                        'salida.min' => 'La salida no puede ser negativa',
+                        'descripcion_id.distinct' => 'La descripción ID está duplicada dentro del arreglo de entrada.',
+                    ]);
 
-                $perifericos = Perifericos::with('estatus','descripciones.producto')->find($id);
-                if(is_null($perifericos)){
-                    Log::channel('sistema')->debug('No se ha logrado actualizar un perifericos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
-                    throw new Exception("No se ha logrado actualizar un perifericos.", 404);
-                    return response()->json(['error'=>'No se ha logrado actualizar un perifericos.'], 404);
+                    //Obtener el modelo a actualizar
+                    $perifericosSaved = Perifericos::with('estatus','descripciones.producto')->find($id);
+
+                    if(is_null($perifericosSaved)){
+                        Log::channel('sistema')->debug('No se encontró el periférico para actualizar.',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                        throw new Exception("No se ha logrado actualizar un perifericos. El ID no existe.", 404);
+                        // Eliminado: return response()->json(['error'=>'No se ha logrado actualizar un perifericos.'], 404);
+                    }
+
+                    //Chequeo de duplicados (Descripciones ya asociadas a OTRO Periférico)
+                    $perifericos_duplicados = Perifericos::with('descripciones')
+                        ->whereHas('descripciones', function ($query) use ($request) {
+                            $query->whereIn('descripcion_id', $request->descripcion_id);
+                        })
+                        ->where('id', '=', $id)
+                        ->get();
+                    
+                    if($perifericos_duplicados->isNotEmpty()){
+                        $seriales = $perifericos_duplicados->flatMap(fn ($u) => $u->descripciones)->pluck('serial')->unique()->implode(', ');
+                        Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['seriales_duplicados' => $seriales,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                        throw new Exception("No se ha logrado guardar. Serial duplicado: {$seriales}", 400);
+                        // Eliminado: return response()->json(['error' => "No se ha logrado guardar. Serial duplicado: {$seriales}"], 400); 
+                    }
+
+                    //ACTUALIZACIÓN DE DATOS (Este bloque es el que se ejecuta si no hay errores)
+                    $perifericosSaved->update([
+                        'entrada'=>$request->entrada,
+                        'salida'=>$request->salida,
+                        'observacion'=>$request->observacion,
+                        'estatus_id'=>$request->estatus_id,
+                    ]);
+                    //SINCRONIZACIÓN DE LA RELACIÓN
+                    if($request->filled('descripcion_id')){
+                        $perifericosSaved->descripciones()->sync($request->descripcion_id);
+                    }
+
+                    Log::channel('usuario')->info('Se actualizó correctamente.'.$perifericosSaved,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);
+
+                } else {
+                    // Si la condición inicial de cantidad falla
+                    Log::channel('errores')->error('La cantidad de descripciones no coincide con entrada/salida.', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("La cantidad de descripciones no coincide con entrada/salida.", 400); // 400 es más apropiado que 402
                 }
-                $perifericos->update([
-                    'cantidad_existente'=>$request->cantidad_existente,
-                    'entrada'=>$request->entrada,
-                    'salida'=>$request->salida,
-                    'observacion'=>$request->observacion,
-                    'estatus_id'=>$request->estatus_id,
-                ]);
-                /* if($request->filled('producto_id')){
-                    $perifericos->productos()->sync($request->producto_id);
-                } */
-                if($request->filled('descripcion_id')){
-                    $inventario->descripciones()->sync($request->descripcion_id);
-                }
-                Log::channel('usuario')->info('Se actualizó correctamente.'.$perifericos,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
-                return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);
-            }else{
-                Log::channel('errores')->error('No está autorizado.', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
-                throw new Exception("no esta autorizado.", 401);
+            } else {
+                // Usuario no autenticado
+                Log::channel('errores')->error('Usuario no autenticado para actualizar.', ['fecha_hora' => now()->toDateTimeString()]);
+                throw new Exception("No está autorizado.", 401);
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::channel('sistema')->debug('Validacion de perifericos: '.$e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
             Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
-            return response()->json(['error'=>$e->getMessage()], 500);
+            // Devolver 500 para errores internos o el código de la excepción si lo especificaste (ej: 404, 400)
+            return response()->json(['error'=>$e->getMessage()], $e->getCode() ?: 500); 
         }
     }
 

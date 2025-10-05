@@ -151,6 +151,21 @@ class UbicacionController extends Controller
                     throw new Exception("No se ha logrado actualizar un ubicacion.", 404);
                     return response()->json(['error'=>'No se ha logrado actualizar un ubicacion.'], 404);
                 }
+
+                $ubicacion_duplicados = Ubicacion::with('descripciones')
+                    ->whereHas('descripciones', function ($query) use ($request) {
+                        $query->whereIn('descripcion_id', $request->descripcion_id);
+                    })
+                    ->where('id', '=', $id)
+                    ->get();
+                
+                if($ubicacion_duplicados->isNotEmpty()){
+                    $seriales = $ubicacion_duplicados->flatMap(fn ($u) => $u->descripciones)->pluck('serial')->unique()->implode(', ');
+                    Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['seriales_duplicados' => $seriales,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado guardar. Serial duplicado: {$seriales}", 400);
+                    // Eliminado: return response()->json(['error' => "No se ha logrado guardar. Serial duplicado: {$seriales}"], 400); 
+                }
+                
                 $ubicacion->update([
                     'origen'=>$request->origen,
                     'destino'=>$request->destino,

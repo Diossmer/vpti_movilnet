@@ -157,6 +157,21 @@ class EvaluacionesController extends Controller
                     throw new Exception("No se ha logrado actualizar un evaluacion.", 404);
                     return response()->json(['error'=>'No se ha logrado actualizar un evaluacion.'], 404);
                 }
+
+                $evaluacion_duplicados = Evaluaciones::with('descripciones')
+                    ->whereHas('descripciones', function ($query) use ($request) {
+                        $query->whereIn('descripcion_id', $request->descripcion_id);
+                    })
+                    ->where('id', '=', $id)
+                    ->get(); // general quitas el where
+                
+                if($evaluacion_duplicados->isNotEmpty()){
+                    $seriales = $evaluacion_duplicados->flatMap(fn ($u) => $u->descripciones)->pluck('serial')->unique()->implode(', ');
+                    Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['seriales_duplicados' => $seriales,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                    throw new Exception("No se ha logrado guardar. Serial duplicado: {$seriales}", 400);
+                    // Eliminado: return response()->json(['error' => "No se ha logrado guardar. Serial duplicado: {$seriales}"], 400); 
+                }
+
                 $evaluacion->update([
                     //'estado_fisico'=>$request->estado_fisico,
                     'escala'=>$request->escala,
