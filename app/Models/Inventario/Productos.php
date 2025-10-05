@@ -14,12 +14,10 @@ class Productos extends Model
     protected $fillable = [
         'nombre',
         'usuario_id',
-        'estatus_id',
     ];
 
     protected $hidden = [
         'usuario_id',
-        'estatus_id',
         'created_at',
         'updated_at'
     ];

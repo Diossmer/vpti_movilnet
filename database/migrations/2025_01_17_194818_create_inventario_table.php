@@ -41,7 +41,7 @@ return new class extends Migration
             $table->string('codigo')->nullable();
             $table->string('modelo')->nullable();
             $table->string('dispositivo')->nullable();
-            $table->string('serial')->nullable();
+            $table->string('serial')->nullable()->unique();
             $table->string('marca')->nullable();
             $table->text('observacion')->nullable();
             $table->string('codigo_inv')->nullable();

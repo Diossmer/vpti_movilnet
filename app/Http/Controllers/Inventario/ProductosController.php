@@ -21,7 +21,7 @@ class ProductosController extends Controller
         try {
             if(Auth::check()){
                 //$productos = Productos::with('descripciones','inventarios','perifericos','evaluaciones','asignaciones','ubicaciones', 'usuario', 'estatus')->get();
-                $productos = Productos::with('descripciones','usuario')->get();
+                $productos = Productos::with('descripciones','usuario','descripciones.asignaciones','descripciones.evaluaciones','descripciones.inventarios','descripciones.perifericos','descripciones.ubicaciones')->get();
                 if($productos->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un productos. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un productos.", 404);

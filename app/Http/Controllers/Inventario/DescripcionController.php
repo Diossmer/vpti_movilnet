@@ -20,7 +20,7 @@ class DescripcionController extends Controller
     {
         try {
             if(Auth::check()){
-                $descripcion = Descripcion::with('producto','asignaciones','evaluaciones','inventarios','perifericos','ubicaciones')->get();
+                $descripcion = Descripcion::with('producto.usuario','asignaciones','evaluaciones','inventarios','perifericos','ubicaciones')->get();
                 if($descripcion->isEmpty()){
                     Log::channel('sistema')->debug('No se ha logrado encontrar un descripcion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado encontrar un descripcion.", 404);
@@ -279,8 +279,75 @@ class DescripcionController extends Controller
         }
     }
 
-    public function generatepdf(?string $id = null, ?string $docs = null)
+    public function principalproducto(Request $request)
     {
-        //
+        try {
+            // 1. Validar los datos de la petición.
+            $request->validate([
+                'codigo' => 'nullable|string|max:255',
+                'modelo' => 'required|string|max:255',
+                'dispositivo' => 'nullable|string|max:255',
+                'serial' => 'required|string|max:255',
+                'marca' => 'required|string|max:255',
+                'codigo_inv' => 'nullable|string|max:255',
+                'observacion' => 'nullable|string|max:500',
+                'nombre' => 'required|string|max:255',
+                'usuario_id' => 'exists:usuarios,id',
+            ], [
+                'codigo.string' => 'La codigo debe ser una cadena de texto.',
+                'codigo.max' => 'La codigo no puede exceder 50 caracteres.',
+                'modelo.string' => 'El modelo debe ser una cadena de texto.',
+                'modelo.max' => 'El modelo no puede exceder 100 caracteres.',
+                'dispositivo.string' => 'El dispositivo debe ser una cadena de texto.',
+                'dispositivo.max' => 'El dispositivo no puede exceder 50 caracteres.',
+                'serial.string' => 'El serial debe ser una cadena de texto.',
+                'serial.max' => 'El serial no puede exceder 100 caracteres.',
+                'marca.string' => 'El marca debe ser una cadena de texto.',
+                'marca.max' => 'El marca no puede exceder 50 caracteres.',
+                'codigo_inv.string' => 'La codigo_inv debe ser una cadena de texto.',
+                'codigo_inv.max' => 'La codigo_inv no puede exceder 50 caracteres.',
+                'observacion.string' => 'La observación debe ser una cadena de texto.',
+                'observacion.max' => 'La observación no puede exceder 255 caracteres.',
+                'nombre.required' => 'El campo nombre del producto está vacío.',
+                'usuario_id.exists' => 'El usuarios seleccionado no es válido.',
+            ]);
+            // 2. Buscar o crear el Producto por su nombre.
+            // Si el producto existe, se devuelve. Si no existe, se crea.
+            $producto = \App\Models\Inventario\Productos::firstOrCreate(
+                ['nombre' => $request->nombre], // Criterio de búsqueda: nombre
+                [
+                    // Atributos de creación si el producto NO existe
+                    'usuario_id' => Auth::id(), // Usamos el ID del usuario autenticado
+                    // No se incluye 'estatus_id'
+                ] 
+            );
+            // 3. Crear la Descripción y asociarla con el ID del Producto.
+            $descripcion = Descripcion::create([
+                'codigo' => $request->codigo,
+                'modelo' => $request->modelo,
+                'dispositivo' => $request->dispositivo,
+                'serial' => $request->serial,
+                'marca' => $request->marca,
+                'codigo_inv' => $request->codigo_inv,
+                'observacion' => $request->observacion,
+                'producto_id' => $producto->id, // Usa el ID del producto encontrado o creado
+            ]);
+            // 4. Cargar las relaciones necesarias para la respuesta.
+            $descripcion->load(['producto','asignaciones','evaluaciones','inventarios','perifericos','ubicaciones']);
+            if(is_null($descripcion)){
+                Log::channel('sistema')->debug('No se ha logrado guardar un descripcion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                throw new Exception("No se ha logrado guardar un descripcion.", 404);
+                return response()->json(['error'=>'No se ha logrado guardar un descripcion.'], 404);
+            }
+            // 5. Devolver la respuesta de éxito.
+            Log::channel('usuario')->info('Se almacenó correctamente.'.$producto->nombre.' serial'.$descripcion->serial,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+            return response()->json(['mensaje' => "Se almacenó correctamente el detalle para el producto: {$producto->nombre} serial: {$descripcion->serial}"], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::channel('sistema')->debug('Validacion de Descripcion: '.$e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            Log::channel('errores')->error($e->getMessage(), ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+            return response()->json(['error'=>$e->getMessage()], 500);
+        }
     }
 }

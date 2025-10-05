@@ -101,7 +101,7 @@ Route::middleware(['api'])->group(function () { # AsegurarToken
     /////////////////////////////////////////////////////////////
     Route::post('descripcionimportar', [App\Http\Controllers\Inventario\DescripcionController::class, 'importar'])->name('descripcionimportar');
     Route::get('descripcionexportar/{id?}', [App\Http\Controllers\Inventario\DescripcionController::class, 'exportar'])->name('descripcionexportar');
-    Route::get('descripcionpdf/{id?}/{docs?}', [App\Http\Controllers\Inventario\DescripcionController::class, 'generatepdf'])->name('descripcionpdf');
+    Route::post('principal', [App\Http\Controllers\Inventario\DescripcionController::class, 'principalproducto'])->name('principalproducto');
     #############################################################
     #########                 Inventarios               #########
     #############################################################
