@@ -45,18 +45,18 @@ class ProductosController extends Controller
                 $request->validate([
                     'nombre' => 'required|string|max:255',
                     'usuario_id' => 'exists:usuarios,id',
-                    'estatus_id' => 'required|exists:estatus,id',
+                    /* 'estatus_id' => 'required|exists:estatus,id', */
                 ], [
                     'nombre.required' => 'El campo nombre del producto está vacío.',
                     'usuario_id.exists' => 'El usuarios seleccionado no es válido.',
-                    'estatus_id.required' => 'El campo estatus es obligatorio.',
-                    'estatus_id.exists' => 'El estatus seleccionado no es válido.',
+                    /* 'estatus_id.required' => 'El campo estatus es obligatorio.',
+                    'estatus_id.exists' => 'El estatus seleccionado no es válido.', */
                 ]);
 
                 $productos = Productos::create([
                     'nombre'=>$request->nombre,
                     'usuario_id'=>Auth::id(),
-                    'estatus_id'=>$request->estatus_id,
+                    /* 'estatus_id'=>$request->estatus_id, */
                 //])->load(['descripciones','inventarios','perifericos','evaluaciones','asignaciones','ubicaciones', 'usuario']);
                 ])->load(['descripciones', 'usuario']);
                 if(is_null($productos)){
@@ -125,7 +125,7 @@ class ProductosController extends Controller
                 }
                 $productos->update([
                     'nombre'=>$request->nombre,
-                    'usuario_id'=>(Auth::id()===1)?$request->usuario_id:Auth::id(),
+                    'usuario_id'=>Auth::id(),
                     /* 'estatus_id'=>$request->estatus_id, */
                 ]);
                 Log::channel('usuario')->info('Se actualizó correctamente.'.$productos,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
