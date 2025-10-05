@@ -20,7 +20,7 @@ return new class extends Migration
 
         Schema::create('perifericos', function (Blueprint $table) {
             $table->id();
-            $table->integer('cantidad_existente')->nullable();
+            /* $table->integer('cantidad_existente')->nullable(); */
             $table->integer('entrada')->nullable();
             $table->integer('salida')->nullable();
             $table->text('observacion')->nullable();
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre')->unique();
             $table->foreignId('usuario_id')->nullable()->constrained('usuarios')->onUpdate('cascade');//->onDelete('cascade');
-            $table->foreignId('estatus_id')->nullable()->constrained('estatus')->onUpdate('cascade');//->onDelete('cascade');
+            /* $table->foreignId('estatus_id')->nullable()->constrained('estatus')->onUpdate('cascade'); *///->onDelete('cascade');
             $table->timestamps();
         });
 

@@ -60,8 +60,8 @@ class Productos extends Model
         return $this->belongsTo(\App\Models\Usuarios::class,'usuario_id');
     }
 
-    public function estatus(): BelongsTo
+    /* public function estatus(): BelongsTo
     {
         return $this->belongsTo(\App\Models\Estatus::class,'estatus_id');
-    }
+    } */
 }

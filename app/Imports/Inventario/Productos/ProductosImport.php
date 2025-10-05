@@ -44,7 +44,7 @@ class ProductosImport implements ToCollection, WithHeadingRow, WithBatchInserts,
                     ],
                     [
                         'usuario_id'=> (Auth::id() === 1)?\App\Models\Usuarios::where('usuario',trim($row["usuario"]))->first()?->id:Auth::id(),
-                        'estatus_id'=>\App\Models\Estatus::where('nombre',trim($row["estatus"]))->first()?->id ?? null,
+                        /* 'estatus_id'=>\App\Models\Estatus::where('nombre',trim($row["estatus"]))->first()?->id ?? null, */
                     ]
                 );
                 \App\Models\Inventario\Descripcion::where('producto_id', $producto->id)->update(['producto_id' => null]);

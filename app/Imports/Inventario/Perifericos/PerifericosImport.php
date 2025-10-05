@@ -36,14 +36,14 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
                 // 1. Aseguramos que 'descripciones' se lee como una cadena (string) para evitar errores con explode()
                 $rawDescriptions = $row['descripciones'] ?? ''; 
 
-                if (empty($row["cantidad_existente"]) || empty($rawDescriptions)) {
+                if (empty($row["entrada"]) || empty($rawDescriptions)) {
                     $this->registrosPendientes++;
-                    throw new \Exception("Fila inválida: cantidad_existente o descripciones están vacíos.");
+                    throw new \Exception("Fila inválida: entrada o descripciones están vacíos.");
                 }
                 
                 $perifericos = \App\Models\Inventario\Perifericos::updateOrCreate(
                     [
-                        'cantidad_existente' => $row["cantidad_existente"]?? 0,
+                        /* 'cantidad_existente' => $row["cantidad_existente"]?? 0, */
                         'entrada' => $row["entrada"] ?? 0,
                         'salida' => $row["salida"] ?? 0,
                     ],
@@ -69,7 +69,7 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
-                    Log::warning("Registro duplicado: cantidad_existente {$row['cantidad_existente']}", ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
+                    Log::warning("Registro duplicado: entrada {$row['entrada']}", ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
                     $this->registrosFallidos++;
                     continue;
                 }

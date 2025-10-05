@@ -30,7 +30,7 @@ class PerifericosExport implements FromCollection, ShouldAutoSize, WithHeadings,
     public function map($request): array
     {
         return [
-            'cantidad_existente'=>$request->cantidad_existente??0,
+            /* 'cantidad_existente'=>$request->cantidad_existente??0, */
             'entrada'=>$request->entrada??0,
             'salida'=>$request->salida??0,
             'observacion'=>$request->observacion??null,

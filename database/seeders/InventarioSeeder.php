@@ -19,7 +19,7 @@ class InventarioSeeder extends Seeder
         /* Productos::create([
             'nombre' => 'N/A',
             'usuario_id'=>1,
-            'estatus_id'=>1,
+            // 'estatus_id'=>1,
         ]);
 
         Descripcion::create([

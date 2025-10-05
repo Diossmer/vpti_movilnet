@@ -11,7 +11,7 @@ class Perifericos extends Model
     protected $table = 'perifericos';
 
     protected $fillable = [
-        'cantidad_existente',
+        /* 'cantidad_existente', */
         'entrada',
         'salida',
         'observacion',

@@ -42,7 +42,7 @@ class PerifericosController extends Controller
         try {
             if(Auth::check()){
                 $request->validate([
-                    'cantidad_existente' => 'required|integer|min:0',
+                    /* 'cantidad_existente' => 'required|integer|min:0', */
                     'entrada' => 'nullable|integer|min:0',
                     'salida' => 'nullable|integer|min:0',
                     'observacion' => 'nullable|string',
@@ -50,9 +50,9 @@ class PerifericosController extends Controller
                     //'producto_id' => 'required|array|exists:productos,id',
                     'descripcion_id'=>'required|array|distinct|exists:descripcion,id',
                 ], [
-                    'cantidad_existente.required' => 'La cantidad existente es obligatoria',
+                    /* 'cantidad_existente.required' => 'La cantidad existente es obligatoria',
                     'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
-                    'cantidad_existente.min' => 'La cantidad no puede ser negativa',
+                    'cantidad_existente.min' => 'La cantidad no puede ser negativa', */
                     'entrada.required' => 'El campo entrada es obligatorio',
                     'entrada.integer' => 'La entrada debe ser un número entero',
                     'entrada.min' => 'La entrada no puede ser negativa',
@@ -138,7 +138,7 @@ class PerifericosController extends Controller
         try {
             if(Auth::check()){
                 $request->validate([
-                    'cantidad_existente' => 'required|integer|min:0',
+                    /* 'cantidad_existente' => 'required|integer|min:0', */
                     'entrada' => 'nullable|integer|min:0',
                     'salida' => 'nullable|integer|min:0',
                     'observacion' => 'nullable|string',
@@ -146,9 +146,9 @@ class PerifericosController extends Controller
                     //'producto_id' => 'required|array|exists:productos,id',
                     'descripcion_id'=>'required|array|distinct|exists:descripcion,id',
                 ], [
-                    'cantidad_existente.required' => 'La cantidad existente es obligatoria',
+                    /* 'cantidad_existente.required' => 'La cantidad existente es obligatoria',
                     'cantidad_existente.integer' => 'La cantidad debe ser un número entero',
-                    'cantidad_existente.min' => 'La cantidad no puede ser negativa',
+                    'cantidad_existente.min' => 'La cantidad no puede ser negativa', */
                     'entrada.required' => 'El campo entrada es obligatorio',
                     'entrada.integer' => 'La entrada debe ser un número entero',
                     'entrada.min' => 'La entrada no puede ser negativa',

@@ -35,7 +35,7 @@ class ProductosExport implements FromCollection, ShouldAutoSize, WithHeadings, W
                 return $descripcion?->marca;
             })->implode(',')??null,
             'usuario_id'=>$request->usuario->usuario??null,
-            'estatus_id'=>$request->estatus->nombre??null,
+            /* 'estatus_id'=>$request->estatus->nombre??null, */
         ];
     }
 
