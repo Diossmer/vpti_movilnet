@@ -63,10 +63,10 @@ class DescripcionesImport implements ToCollection, WithHeadingRow, WithBatchInse
                 $asignacionesID = \App\Models\Inventario\Asignacion::whereIn('destino',array_map('Str::lower', array_map('trim', explode(',', $row['asignaciones']))))->get()->pluck('id')->toArray();
                 $descripcion->asignaciones()->sync($asignacionesID);
                 
-                $evaluacionesID = \App\Models\Inventario\Evaluaciones::whereIn('estatus_id',array_map('Str::lower', array_map('trim', explode(',', $row['evaluaciones']))))->get()->pluck('id')->toArray();
+                $evaluacionesID = \App\Models\Inventario\Evaluaciones::whereIn('escala',array_map('Str::lower', array_map('trim', explode(',', $row['evaluaciones']))))->get()->pluck('id')->toArray();
                 $descripcion->evaluaciones()->sync($evaluacionesID);
                 
-                $perifericosID = \App\Models\Inventario\Perifericos::whereIn('entrada',array_map('Str::lower', array_map('trim', explode(',', $row['perifericos']))))->get()->pluck('id')->toArray();
+                $perifericosID = \App\Models\Inventario\Perifericos::whereIn('observacion',array_map('Str::lower', array_map('trim', explode(',', $row['perifericos']))))->get()->pluck('id')->toArray();
                 $descripcion->perifericos()->sync($perifericosID);
                 
                 $ubicacionesID = \App\Models\Inventario\Ubicacion::whereIn('origen',array_map('Str::lower', array_map('trim', explode(',', $row['ubicaciones']))))->get()->pluck('id')->toArray();

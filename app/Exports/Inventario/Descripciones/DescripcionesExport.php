@@ -42,13 +42,13 @@ class DescripcionesExport implements FromCollection, ShouldAutoSize, WithHeading
                 return $asignacion?->destino;
             })->implode(',') ?? null,
             'evaluaciones'=>$request->evaluaciones->map(function($evaluacion){
-                return \App\Models\Estatus::where('id','=',$evaluacion->estatus_id)->first()?->nombre;
+                return $evaluacion->escala;
             })->implode(',') ?? null,
-            'inventarios'=>$request->inventarios->map(function($inventario){
+            /* 'inventarios'=>$request->inventarios->map(function($inventario){
                 return $inventario?->cantidad_existente;
-            })->implode(',') ?? null,
+            })->implode(',') ?? null, */
             'perifericos'=>$request->perifericos->map(function($periferico){
-                return $periferico?->cantidad_existente;
+                return $periferico?->observacion;
             })->implode(',') ?? null,
             'ubicaciones'=>$request->ubicaciones->map(function($ubicacion){
                 return $ubicacion?->origen;
@@ -75,7 +75,6 @@ class DescripcionesExport implements FromCollection, ShouldAutoSize, WithHeading
             'producto',
             'asignaciones',
             'evaluaciones',
-            'inventarios',
             'perifericos',
             'ubicaciones',
             'Usuario',
