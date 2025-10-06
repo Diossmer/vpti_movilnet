@@ -36,9 +36,9 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
                 // 1. Aseguramos que 'descripciones' se lee como una cadena (string) para evitar errores con explode()
                 $rawDescriptions = $row['descripciones'] ?? ''; 
 
-                if (empty($row["entrada"]) || empty($rawDescriptions)) {
+                if (empty($row["descripciones"]) || empty($rawDescriptions)) {
                     $this->registrosPendientes++;
-                    throw new \Exception("Fila inválida: entrada o descripciones están vacíos.");
+                    throw new \Exception("Fila inválida: descripciones o descripciones están vacíos.");
                 }
                 
                 $perifericos = \App\Models\Inventario\Perifericos::updateOrCreate(
@@ -69,13 +69,13 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
                 $this->registrosCargados++;
             } catch (QueryException $e) {
                 if ($e->errorInfo[1] == 1062) {
-                    Log::warning("Registro duplicado: entrada {$row['entrada']}", ['fecha_hora' => now()->toDateTimeString(), Auth::user()]);
+                    Log::warning("Registro duplicado: entrada {$row['descripciones']}", ['fecha_hora' => now()->toDateTimeString(), \Auth::user()]);
                     $this->registrosFallidos++;
                     continue;
                 }
                 throw $e;
             } catch (\Exception $e) {
-                Log::error("Error al procesar la fila: ", [$e->getMessage(), 'fecha_hora' => now()->toDateTimeString(), Auth::user()]);
+                Log::error("Error al procesar la fila: ", [$e->getMessage(), 'fecha_hora' => now()->toDateTimeString(), \Auth::user()]);
                 $this->registrosFallidos++;
                 continue;
             }
@@ -100,11 +100,7 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
     public function rules(): array
     {
         return [
-            // He quitado el unique para 'cantidad_existente' de aquí ya que lo estás manejando en updateOrCreate
-            '*.cantidad_existente' => 'required',
-            '*.observacion' => 'nullable|string|max:500',
-            // Asegúrate que la columna 'descripciones' existe
-            '*.descripciones' => 'required|string', 
+            '*.descripciones' => 'nullable|string|max:500',
         ];
     }
     
@@ -113,8 +109,7 @@ class PerifericosImport implements ToCollection, WithHeadingRow, WithBatchInsert
     public function customValidationMessages()
     {
         return [
-            '*.cantidad_existente.required' => 'El campo :attribute es obligatorio.',
-            '*.observacion.string' => 'El campo observacion debe ser string.',
+            '*.descripciones.string' => 'El campo descripciones debe ser string.',
         ];
     }
 

@@ -153,7 +153,6 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>Cantidad Existente</th>
               <th>Entrada</th>
               <th>Salida</th>
               <th>Estatus</th>
@@ -163,7 +162,6 @@
             @foreach($inventarios as $inventario)
               <tr>
                 <td>{{ $inventario->id }}</td>
-                <td>{{ $inventario->cantidad_existente ?? '' }}</td>
                 <td>{{ $inventario->entrada ?? '' }}</td>
                 <td>{{ $inventario->salida ?? '' }}</td>
                 <td>{{ $inventario->estatus->nombre ?? '' }}</td>

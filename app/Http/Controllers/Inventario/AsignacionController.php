@@ -108,21 +108,7 @@ class AsignacionController extends Controller
                             }
                         }
                     }
-
-                    // 3. Respuesta de confirmación con los IDs desvinculados
-                    return response()->json([
-                        'mensaje' => 'Relaciones de ubicaciones desvinculadas correctamente.',
-                        'ubicaciones_afectadas' => $ubicaciones_asociadas->pluck('id'),
-                        'descripciones_desvinculadas' => array_unique($descripciones_desvinculadas),
-                    ], 200);
-
-                }else {
-                    return response()->json([
-                        'mensaje' => 'Ninguna ubicación está asociada a las descripciones proporcionadas.',
-                        'descripcion_id_recibidos' => $request->descripcion_id,
-                    ], 200);
                 }
-
                 $asignaciones = Asignacion::with('descripciones')
                     ->whereHas('descripciones', function ($query) use ($request) {
                         $query->whereIn('descripcion_id', $request->descripcion_id);
@@ -144,9 +130,6 @@ class AsignacionController extends Controller
                     'estatus_id'=>$request->estatus_id,
                     'usuario_id'=>(Auth::id()===1)?$request->usuario_id:Auth::id(),
                 ])->load(['estatus', 'usuario', 'descripciones.producto']);
-                /* if($request->filled('producto_id')){
-                    $asignacion->productos()->sync($request->producto_id);
-                } */
                 if($request->filled('descripcion_id')){
                     $asignacion->descripciones()->sync($request->descripcion_id);
                 }

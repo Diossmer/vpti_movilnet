@@ -32,7 +32,7 @@ class ProductosExport implements FromCollection, ShouldAutoSize, WithHeadings, W
         return [
             'nombre'=>$request->nombre??"Sin data",
             'descripcion_id'=>$request->descripciones->map(function($descripcion){
-                return $descripcion?->marca;
+                return $descripcion?->serial;
             })->implode(',')??null,
             'usuario_id'=>$request->usuario->usuario??null,
             /* 'estatus_id'=>$request->estatus->nombre??null, */

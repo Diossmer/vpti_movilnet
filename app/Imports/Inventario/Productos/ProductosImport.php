@@ -48,7 +48,7 @@ class ProductosImport implements ToCollection, WithHeadingRow, WithBatchInserts,
                     ]
                 );
                 \App\Models\Inventario\Descripcion::where('producto_id', $producto->id)->update(['producto_id' => null]);
-                \App\Models\Inventario\Descripcion::whereIn('marca', array_map('Str::lower', array_map('trim', explode(',', $row['descripciones']))))
+                \App\Models\Inventario\Descripcion::whereIn('serial', array_map('Str::lower', array_map('trim', explode(',', $row['descripciones']))))
                 ->update(['producto_id' => $producto->id]);
                 $this->registrosCargados++;
             } catch (QueryException $e) {

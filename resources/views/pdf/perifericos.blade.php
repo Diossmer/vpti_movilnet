@@ -151,7 +151,6 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>Cantidad Existente</th>
               <th>Entrada</th>
               <th>Salida</th>
               <th>Estatus</th>
@@ -161,7 +160,6 @@
             @foreach($perifericos as $periferico)
               <tr>
                 <td>{{ $periferico->id }}</td>
-                <td>{{ $periferico->cantidad_existente ?? '' }}</td>
                 <td>{{ $periferico->entrada ?? '' }}</td>
                 <td>{{ $periferico->salida ?? '' }}</td>
                 <td>{{ $periferico->estatus->nombre ?? '' }}</td>

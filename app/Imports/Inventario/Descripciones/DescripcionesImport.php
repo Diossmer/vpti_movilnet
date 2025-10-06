@@ -37,6 +37,14 @@ class DescripcionesImport implements ToCollection, WithHeadingRow, WithBatchInse
                     $this->registrosPendientes++;
                     throw new \Exception("Fila inválida: producto está vacío.");
                 }
+                \App\Models\Inventario\Productos::updateOrCreate(
+                    [
+                        'nombre' => trim($row["producto"])
+                    ],
+                    [
+                        'usuario_id'=> (\Auth::user()->rol_id === 1)?\App\Models\Usuarios::where('usuario',trim($row["usuario"]))->first()?->id:\Auth::id(),
+                    ]
+                );
                 $descripcion = \App\Models\Inventario\Descripcion::updateOrCreate(
                     [
                         'observacion' => trim($row["observacion"]),
@@ -58,10 +66,7 @@ class DescripcionesImport implements ToCollection, WithHeadingRow, WithBatchInse
                 $evaluacionesID = \App\Models\Inventario\Evaluaciones::whereIn('estatus_id',array_map('Str::lower', array_map('trim', explode(',', $row['evaluaciones']))))->get()->pluck('id')->toArray();
                 $descripcion->evaluaciones()->sync($evaluacionesID);
                 
-                $inventariosID = \App\Models\Inventario\Inventarios::whereIn('cantidad_existente',array_map('Str::lower', array_map('trim', explode(',', $row['inventarios']))))->get()->pluck('id')->toArray();
-                $descripcion->inventarios()->sync($inventariosID);
-                
-                $perifericosID = \App\Models\Inventario\Perifericos::whereIn('cantidad_existente',array_map('Str::lower', array_map('trim', explode(',', $row['perifericos']))))->get()->pluck('id')->toArray();
+                $perifericosID = \App\Models\Inventario\Perifericos::whereIn('entrada',array_map('Str::lower', array_map('trim', explode(',', $row['perifericos']))))->get()->pluck('id')->toArray();
                 $descripcion->perifericos()->sync($perifericosID);
                 
                 $ubicacionesID = \App\Models\Inventario\Ubicacion::whereIn('origen',array_map('Str::lower', array_map('trim', explode(',', $row['ubicaciones']))))->get()->pluck('id')->toArray();
