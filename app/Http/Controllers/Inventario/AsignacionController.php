@@ -63,16 +63,79 @@ class AsignacionController extends Controller
                     //'producto_id.required' => 'El campo producto_id es obligatorio.',
                     //'producto_id.array' => 'El campo producto_id debe ser un número entero.',
                 ]);
+
+                /* $ubicacion = \App\Models\Inventario\Ubicacion::with('descripciones')
+                    ->whereHas('descripciones', function ($query) use ($request) {
+                        $query->whereIn('descripcion_id', $request->descripcion_id);
+                    })->first()->descripciones->first(); */
+                
+                // 1. Obtener la colección de modelos Ubicacion (SIN PLUCK)
+                $ubicaciones_asociadas = \App\Models\Inventario\Ubicacion::with('descripciones')
+                    ->whereHas('descripciones', function ($query) use ($request) {
+                        $query->whereIn('descripcion_id', $request->descripcion_id);
+                    })->get();
+
+                // Inicializamos un array para el debugging: cuáles IDs se van a desvincular
+                $descripciones_desvinculadas = [];
+
+                if ($ubicaciones_asociadas->isNotEmpty()){
+                    
+                    $descripcion_ids_a_eliminar = $request->descripcion_id; 
+                    $ubicaciones_eliminadas_ids = []; // Array para rastrear las ubicaciones eliminadas
+
+                    // 2. Iteración y Eliminación (Desvinculación + Eliminación de Ubicación)
+                    foreach ($ubicaciones_asociadas as $ubicacion) {
+                        
+                        $ids_en_ubicacion = $ubicacion->descripciones->pluck('id')->toArray();
+                        $ids_a_desvincular_ahora = array_intersect($descripcion_ids_a_eliminar, $ids_en_ubicacion);
+
+                        if (!empty($ids_a_desvincular_ahora)) {
+                            // A. Elimina la relación (Desvinculación)
+                            $ubicacion->descripciones()->detach($ids_a_desvincular_ahora);
+                            
+                            // Registramos la acción para el mensaje de respuesta
+                            $descripciones_desvinculadas = array_merge($descripciones_desvinculadas, $ids_a_desvincular_ahora);
+                            
+                            // B. VERIFICACIÓN Y ELIMINACIÓN DEL REGISTRO DE UBICACIÓN
+                            // Recargamos la relación para ver el estado actual de la ubicación.
+                            // Esto es crucial para saber si quedan otras descripciones asociadas.
+                            $ubicacion->load('descripciones');
+
+                            if ($ubicacion->descripciones->isEmpty()) {
+                                // Si no quedan descripciones, eliminamos el registro de Ubicación.
+                                $ubicaciones_eliminadas_ids[] = $ubicacion->id;
+                                $ubicacion->delete();
+                            }
+                        }
+                    }
+
+                    // 3. Respuesta de confirmación con los IDs desvinculados
+                    return response()->json([
+                        'mensaje' => 'Relaciones de ubicaciones desvinculadas correctamente.',
+                        'ubicaciones_afectadas' => $ubicaciones_asociadas->pluck('id'),
+                        'descripciones_desvinculadas' => array_unique($descripciones_desvinculadas),
+                    ], 200);
+
+                }else {
+                    return response()->json([
+                        'mensaje' => 'Ninguna ubicación está asociada a las descripciones proporcionadas.',
+                        'descripcion_id_recibidos' => $request->descripcion_id,
+                    ], 200);
+                }
+
                 $asignaciones = Asignacion::with('descripciones')
                     ->whereHas('descripciones', function ($query) use ($request) {
                         $query->whereIn('descripcion_id', $request->descripcion_id);
                     })->get();
+
                 if($asignaciones->isNotEmpty()){
                     $seriales = $asignaciones->flatMap(fn ($u) => $u->descripciones)->pluck('serial')->unique()->implode(', ');
                     Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['seriales_duplicados' => $seriales,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado guardar. Serial duplicado: {$seriales}", 400);
                     return response()->json(['error' => "No se ha logrado guardar. Serial duplicado: {$seriales}"], 400); 
                 }
+                
+                //\App\Models\Inventario\Descripcion::find($)
                 $asignacion = Asignacion::create([
                     'fecha_asignar'=>$request->fecha_asignar,
                     'fecha_devolucion'=>$request->fecha_devolucion,

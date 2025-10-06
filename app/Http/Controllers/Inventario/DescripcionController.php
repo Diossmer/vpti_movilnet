@@ -211,7 +211,7 @@ class DescripcionController extends Controller
     public function exportar(?string $id=null){
         try {
             if(is_numeric($id)){
-                $data = new ExportMultiSheet(Descripcion::with('producto','asignaciones','evaluaciones','inventarios','perifericos','ubicaciones')->where('id','=',$id)->get()->makeHidden(['id']));
+                $data = new ExportMultiSheet(Descripcion::with('producto.usuario','asignaciones','evaluaciones','inventarios','perifericos','ubicaciones')->where('id','=',$id)->get()->makeHidden(['id']));
                 if(!$data){
                     Log::channel('sistema')->debug('No se ha logrado exportar la descripcion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                     throw new Exception("No se ha logrado exportar la descripcion.", 404);
@@ -219,7 +219,7 @@ class DescripcionController extends Controller
                 Log::channel('usuario')->info('Se exportó correctamente: ', ['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 return ($data)->download('*.xlsx');
             }
-            $data = new ExportMultiSheet(Descripcion::with('producto','asignaciones','evaluaciones','inventarios','perifericos','ubicaciones')->get()->makeHidden(['id']));
+            $data = new ExportMultiSheet(Descripcion::with('producto.usuario','asignaciones','evaluaciones','inventarios','perifericos','ubicaciones')->get()->makeHidden(['id']));
             if(!$data){
                 Log::channel('sistema')->debug('No se ha logrado exportar la descripcion. ',['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
                 throw new Exception("No se ha logrado exportar la descripcion.", 404);

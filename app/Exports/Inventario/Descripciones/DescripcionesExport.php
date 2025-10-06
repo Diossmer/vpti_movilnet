@@ -53,6 +53,7 @@ class DescripcionesExport implements FromCollection, ShouldAutoSize, WithHeading
             'ubicaciones'=>$request->ubicaciones->map(function($ubicacion){
                 return $ubicacion?->origen;
             })->implode(',') ?? null,
+            'Usuario'=>$request->producto->usuario->usuario ?? null,
         ];
     }
 
@@ -63,7 +64,23 @@ class DescripcionesExport implements FromCollection, ShouldAutoSize, WithHeading
 
     public function headings(): array
     {
-        return array_keys($this->descripciones->first()->toArray());
+        $arraykey = [
+            'codigo',
+            'modelo',
+            'dispositivo',
+            'serial',
+            'marca',
+            'observacion',
+            'codigo_inv',
+            'producto',
+            'asignaciones',
+            'evaluaciones',
+            'inventarios',
+            'perifericos',
+            'ubicaciones',
+            'Usuario',
+        ];
+        return $arraykey;
     }
 
     public function title(): string
