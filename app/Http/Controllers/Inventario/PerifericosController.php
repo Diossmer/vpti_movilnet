@@ -167,15 +167,29 @@ class PerifericosController extends Controller
                         throw new Exception("No se ha logrado actualizar un perifericos. El ID no existe.", 404);
                         // Eliminado: return response()->json(['error'=>'No se ha logrado actualizar un perifericos.'], 404);
                     }
-
+                    
                     //Chequeo de duplicados (Descripciones ya asociadas a OTRO Periférico)
                     $perifericos_duplicados = Perifericos::with('descripciones')
                         ->whereHas('descripciones', function ($query) use ($request) {
                             $query->whereIn('descripcion_id', $request->descripcion_id);
-                        })
-                        ->where('id', '=', $id)
-                        ->get();
-                    
+                        })->where('id', '=', $id)->get();
+                    //$array_id = $perifericos_duplicados->flatMap(fn ($p) => $p->descripciones)->pluck('id');
+                    if($perifericos_duplicados->isNotEmpty() && ($request->salida && $request->entrada == 0)){
+                        //ACTUALIZACIÓN DE DATOS (Este bloque es el que se ejecuta si no hay errores)
+                        $perifericosSaved->update([
+                            'entrada'=>$request->entrada,
+                            'salida'=>$request->salida,
+                            'observacion'=>$request->observacion,
+                            'estatus_id'=>$request->estatus_id,
+                        ]);
+                        //SINCRONIZACIÓN DE LA RELACIÓN
+                        if($request->filled('descripcion_id')){
+                            $perifericosSaved->descripciones()->sync($request->descripcion_id);
+                        }
+
+                        Log::channel('usuario')->info('Se actualizó correctamente.'.$perifericosSaved,['fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                        return response()->json(['mensaje'=>'Se actualizó correctamente.'], 200);
+                    }
                     if($perifericos_duplicados->isNotEmpty()){
                         $seriales = $perifericos_duplicados->flatMap(fn ($u) => $u->descripciones)->pluck('serial')->unique()->implode(', ');
                         Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['seriales_duplicados' => $seriales,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
