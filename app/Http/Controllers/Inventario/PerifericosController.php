@@ -142,7 +142,7 @@ class PerifericosController extends Controller
     {
         try {
             if(Auth::check()){
-                if(count($request->descripcion_id) == $request->entrada || (count($request->descripcion_id) == $request->salida && $request->entrada == 0)){
+                if((count($request->descripcion_id) == $request->entrada && $request->salida == 0) || (count($request->descripcion_id) == $request->salida && $request->entrada == 0)){
                     
                     // --- Validaciones ---
                     $request->validate([
