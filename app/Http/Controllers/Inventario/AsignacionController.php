@@ -120,7 +120,6 @@ class AsignacionController extends Controller
                     throw new Exception("No se ha logrado guardar. Serial duplicado: {$seriales}", 400);
                     return response()->json(['error' => "No se ha logrado guardar. Serial duplicado: {$seriales}"], 400); 
                 }
-                
                 //\App\Models\Inventario\Descripcion::find($)
                 $asignacion = Asignacion::create([
                     'fecha_asignar'=>$request->fecha_asignar,
@@ -206,20 +205,21 @@ class AsignacionController extends Controller
                     throw new Exception("No se ha logrado actualizar un asignacion.", 404);
                     return response()->json(['error'=>'No se ha logrado actualizar un asignacion.'], 404);
                 }
-
-                //Chequeo de duplicados (Descripciones ya asociadas a OTRO Periférico)
-                $asignacion_duplicados = Asignacion::with('descripciones')
-                    ->whereHas('descripciones', function ($query) use ($request) {
-                        $query->whereIn('descripcion_id', $request->descripcion_id);
-                    })
-                    ->where('id', '=', $id)
-                    ->get();
-                
-                if($asignacion_duplicados->isNotEmpty()){
-                    $seriales = $asignacion_duplicados->flatMap(fn ($u) => $u->descripciones)->pluck('serial')->unique()->implode(', ');
-                    Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['seriales_duplicados' => $seriales,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
-                    throw new Exception("No se ha logrado guardar. Serial duplicado: {$seriales}", 400);
-                    // Eliminado: return response()->json(['error' => "No se ha logrado guardar. Serial duplicado: {$seriales}"], 400); 
+                if(Auth::user()->rol_id !== 4) {
+                    //Chequeo de duplicados (Descripciones ya asociadas a OTRO Periférico)
+                    $asignacion_duplicados = Asignacion::with('descripciones')
+                        ->whereHas('descripciones', function ($query) use ($request) {
+                            $query->whereIn('descripcion_id', $request->descripcion_id);
+                        })
+                        ->where('id', '=', $id)
+                        ->get();
+                    
+                    if($asignacion_duplicados->isNotEmpty()){
+                        $seriales = $asignacion_duplicados->flatMap(fn ($u) => $u->descripciones)->pluck('serial')->unique()->implode(', ');
+                        Log::channel('sistema')->debug('No se ha logrado guardar por que está duplicado. ',['seriales_duplicados' => $seriales,'fecha_hora' => now()->toDateTimeString(),Auth::user()]);
+                        throw new Exception("No se ha logrado guardar. Serial duplicado: {$seriales}", 400);
+                        // Eliminado: return response()->json(['error' => "No se ha logrado guardar. Serial duplicado: {$seriales}"], 400); 
+                    }
                 }
                 
                 $asignacion->update([
